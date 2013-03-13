@@ -1,35 +1,30 @@
-package com.perm.kate.api.sample;
+package com.rappasocial.vk15puzzle;
 
 import java.util.ArrayList;
-import java.util.List;
-
-
-
+import java.util.LinkedList;
 import com.perm.kate.api.Api;
 import com.perm.kate.api.User;
+import com.perm.kate.api.sample.Account;
+import com.perm.kate.api.sample.Constants;
+import com.perm.kate.api.sample.ImageLoader;
+import com.perm.kate.api.sample.LoginActivity;
 
 
-
+import cz.destil.sliderpuzzle.ui.GameBoardView;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -44,19 +39,22 @@ public class MainActivity extends Activity {
 	Button authorizeButton;
 	Button logoutButton;
 	Button postButton;
+	ImageView ivBig;
+	Button btStartGame;
 	BoxAdapterFriends boxAdapter;
 	EditText messageEditText;
 	ListView lvFriends;
 	Account account = new Account();
 	Api api;
-	ArrayList<User> arFriends;
+	ExtendedApplication extApp;
+	private GameBoardView gameBoard;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		
+		extApp = (ExtendedApplication) getApplicationContext();
 
 		setupUI();
 
@@ -64,26 +62,47 @@ public class MainActivity extends Activity {
 		account.restore(this);
 
 		// Если сессия есть создаём API для обращения к серверу
-		if (account.access_token != null){
+		if (account.access_token != null) {
 			api = new Api(account.access_token, Constants.API_ID);
 
-		showButtons();
-		
-		try {
-			String text = messageEditText.getText().toString();
-			arFriends = api.getFriends(account.user_id, null, 20, null, null, null);
-			// Показать сообщение в UI потоке
-			runOnUiThread(successRunnable);
-		} catch (Exception e) {
-			e.printStackTrace();
+			showButtons();
+
+			try {
+
+				extApp.arFriends = api.getFriends(account.user_id, null, 20,
+						null, null, null);
+				// Показать сообщение в UI потоке
+				runOnUiThread(successRunnable);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			ImageLoader imageLoader = new ImageLoader(MainActivity.this);
+			imageLoader.DisplayImage(extApp.arFriends.get(0).photo_big,
+					ivBig);
+
+			boxAdapter = new BoxAdapterFriends(extApp.arFriends,
+					MainActivity.this);
+
+			lvFriends = (ListView) findViewById(R.id.lvFriends);
+
+			lvFriends.setAdapter(boxAdapter);
 		}
 		
-		boxAdapter = new BoxAdapterFriends(arFriends, MainActivity.this);
-		
-		lvFriends = (ListView) findViewById(R.id.lvFriends);
-		
-		lvFriends.setAdapter(boxAdapter);}
-		
+//		try {
+//			gameBoard = (GameBoardView) findViewById(R.id.gameboard);
+//			gameBoard.setTileOrder(null);
+//			gameBoard.fillTiles(extApp.arFriends.get(0).photo_big,
+//					MainActivity.this);
+//			// use preserved tile locations when orientation changed
+//			@SuppressWarnings({ "deprecation", "unchecked" })
+//			final LinkedList<Integer> tileOrder = (LinkedList<Integer>) getLastNonConfigurationInstance();
+//			if (tileOrder != null) {
+//				gameBoard.setTileOrder(tileOrder);
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+
 	}
 
 	private void setupUI() {
@@ -94,12 +113,22 @@ public class MainActivity extends Activity {
 		authorizeButton.setOnClickListener(authorizeClick);
 		logoutButton.setOnClickListener(logoutClick);
 		postButton.setOnClickListener(postClick);
+		btStartGame = (Button) findViewById(R.id.btStartGame);
+		btStartGame.setOnClickListener(btStartGameClick);
+		ivBig = (ImageView) findViewById(R.id.ivBig);
 	}
 
 	private OnClickListener authorizeClick = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
 			startLoginActivity();
+		}
+	};
+	
+	private OnClickListener btStartGameClick = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			startGameActivity();
 		}
 	};
 
@@ -116,11 +145,19 @@ public class MainActivity extends Activity {
 			postToWall();
 		}
 	};
+	
+
 
 	private void startLoginActivity() {
 		Intent intent = new Intent();
 		intent.setClass(this, LoginActivity.class);
 		startActivityForResult(intent, REQUEST_LOGIN);
+	}
+	
+	private void startGameActivity() {
+		Intent intent = new Intent(MainActivity.this,
+				GameActivity.class);
+		startActivity(intent);
 	}
 
 	@Override
@@ -184,33 +221,33 @@ public class MainActivity extends Activity {
 			messageEditText.setVisibility(View.GONE);
 		}
 	}
-    
+
 	private class ViewHolder {
 		public ImageView ivFriendAva;
 		public TextView tvFriendName;
 		public TextView tvIsOnline;
 		public int position;
 
-		
 	}
-	
+
 	public class BoxAdapterFriends extends ArrayAdapter<User> implements
 			OnClickListener, OnItemClickListener {
 		Context ctx;
 		LayoutInflater lInflater;
 		ArrayList<User> objects;
 		public ImageLoader imageLoader;
-//		private  LayoutInflater inflater = null;
-		
-//		ExtendedApplication extApp;
+		// private LayoutInflater inflater = null;
+
+		// ExtendedApplication extApp;
 		LinearLayout llRoutineEditBG, llRoutineEditClickAble;
 
 		public BoxAdapterFriends(ArrayList<User> objects, Context ctx) {
 			super(MainActivity.this, R.layout.friend_list_item,
 					R.id.tvFriendName, objects);
-//			extApp = (ExtendedApplication) ctx.getApplicationContext();
-//			inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	        imageLoader=new ImageLoader(ctx);
+			// extApp = (ExtendedApplication) ctx.getApplicationContext();
+			// inflater =
+			// (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			imageLoader = new ImageLoader(ctx);
 			this.ctx = ctx;
 		}
 
@@ -236,7 +273,7 @@ public class MainActivity extends Activity {
 		// return position;
 		// }
 
-		
+		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 
 			// View view = convertView;
@@ -265,7 +302,8 @@ public class MainActivity extends Activity {
 			if (v != convertView && v != null) {
 				ViewHolder holder = new ViewHolder();
 
-				ImageView ivFriendAva = (ImageView) v.findViewById(R.id.ivFriendAva);
+				ImageView ivFriendAva = (ImageView) v
+						.findViewById(R.id.ivFriendAva);
 				TextView tvFriendName = (TextView) v
 						.findViewById(R.id.tvFriendName);
 				TextView tvIsOnline = (TextView) v
@@ -279,54 +317,51 @@ public class MainActivity extends Activity {
 				v.setTag(holder);
 			}
 
-//			
+			//
 
 			ViewHolder holder = (ViewHolder) v.getTag();
-			
-			
-			imageLoader.DisplayImage(getItem(position).photo_medium, holder.ivFriendAva);
-			
-		
-			holder.tvFriendName.setText(getItem(position).first_name + " " + getItem(position).last_name);
+
+			imageLoader.DisplayImage(getItem(position).photo_medium,
+					holder.ivFriendAva);
+
+			holder.tvFriendName.setText(getItem(position).first_name + " "
+					+ getItem(position).last_name);
 			holder.tvIsOnline.setText(String.valueOf(getItem(position).online));
 
-			
-
 			v.setOnClickListener(this);
-
-			
 
 			holder.position = position;
 
 			return v;
 
 		}
-		
-		Drawable drawable_from_url(String url, String src_name) throws 
-		   java.net.MalformedURLException, java.io.IOException 
-		{
-		   return Drawable.createFromStream(((java.io.InputStream)
-		      new java.net.URL(url).getContent()), src_name);
+
+		Drawable drawable_from_url(String url, String src_name)
+				throws java.net.MalformedURLException, java.io.IOException {
+			return Drawable.createFromStream(
+					((java.io.InputStream) new java.net.URL(url).getContent()),
+					src_name);
 		}
 
 		User getRoutine(int position) {
-			return ((User) getItem(position));
+			return getItem(position);
 		}
 
+		@Override
 		public void onClick(View v) {
 
-			switch (v.getId()) {
-
-			
-
+//			switch (v.getId()) {
+//
 //			case R.id.btEditRoutine:
-//	
-//				break;
-
-			}
+//			//
+//			break;
+//
+//			}
+			extApp.frNumber = ((ViewHolder) v.getTag()).position;
 
 		}
 
+		@Override
 		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 				long arg3) {
 

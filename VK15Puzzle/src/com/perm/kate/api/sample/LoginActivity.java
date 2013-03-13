@@ -10,7 +10,7 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import com.perm.kate.api.sample.R;
+import com.rappasocial.vk15puzzle.R;
 
 public class LoginActivity extends Activity {
     private static final String TAG = "Kate.LoginActivity";

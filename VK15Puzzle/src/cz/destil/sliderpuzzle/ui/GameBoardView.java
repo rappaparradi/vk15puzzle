@@ -21,8 +21,9 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
 import com.actionbarsherlock.internal.nineoldandroids.animation.FloatEvaluator;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
+import com.perm.kate.api.sample.ImageLoader;
 
-import cz.destil.sliderpuzzle.R;
+import com.rappasocial.vk15puzzle.R;
 import cz.destil.sliderpuzzle.data.Coordinate;
 import cz.destil.sliderpuzzle.util.TileSlicer;
 
@@ -38,7 +39,7 @@ import cz.destil.sliderpuzzle.util.TileSlicer;
  * @author David Vavra
  * 
  */
-public class GameBoardView extends RelativeLayout implements OnTouchListener {
+public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 
 	public static final int GRID_SIZE = 4; // 4x4
 
@@ -52,9 +53,18 @@ public class GameBoardView extends RelativeLayout implements OnTouchListener {
 	private boolean boardCreated;
 	private RectF gameboardRect;
 	private PointF lastDragPoint;
+	public String vkphotourl;
 	private ArrayList<GameTileMotionDescriptor> currentMotionDescriptors;
 	private LinkedList<Integer> tileOrder;
-
+	public Context context;
+	
+	
+	public GameBoardView(Context context, AttributeSet attrSet, String url) {
+		super(context, attrSet);
+		this.vkphotourl = url;
+		this.context = context;
+	}
+	
 	public GameBoardView(Context context, AttributeSet attrSet) {
 		super(context, attrSet);
 	}
@@ -64,7 +74,7 @@ public class GameBoardView extends RelativeLayout implements OnTouchListener {
 		super.onLayout(changed, left, top, right, bottom);
 		if (!boardCreated) {
 			determineGameboardSizes();
-			fillTiles();
+			fillTiles(this.vkphotourl, this.context);
 			boardCreated = true;
 		}
 	}
@@ -92,11 +102,13 @@ public class GameBoardView extends RelativeLayout implements OnTouchListener {
 	/**
 	 * Fills game board with tiles sliced from the globe image.
 	 */
-	public void fillTiles() {
+	public void fillTiles(String url, Context context) {
+		
 		removeAllViews();
 		// load image to slicer
-		Drawable globe = getResources().getDrawable(R.drawable.globe);
-		Bitmap original = ((BitmapDrawable) globe).getBitmap();
+		ImageLoader imageLoader = new ImageLoader(context);
+		
+		Bitmap original = imageLoader.getBitmap(url);
 		TileSlicer tileSlicer = new TileSlicer(original, GRID_SIZE, getContext());
 		// order slices
 		if (tileOrder == null) {
@@ -122,6 +134,12 @@ public class GameBoardView extends RelativeLayout implements OnTouchListener {
 				tiles.add(tile);
 			}
 		}
+	}
+	
+public void PutURL(String url, Context context) {
+		
+		this.vkphotourl = url;
+		this.context = context;
 	}
 
 	/**

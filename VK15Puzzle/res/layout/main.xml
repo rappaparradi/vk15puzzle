@@ -31,6 +31,19 @@
         android:text="Выход"
     />
 
+    <Button
+        android:id="@+id/btStartGame"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Game" />
+
+    <ImageView
+        android:id="@+id/ivBig"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/abs__ab_bottom_solid_dark_holo"
+        android:visibility="gone" />
+
     <ListView
         android:id="@+id/lvFriends"
         android:layout_width="fill_parent"

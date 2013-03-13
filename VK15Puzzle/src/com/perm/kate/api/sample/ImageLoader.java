@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import com.rappasocial.vk15puzzle.R;
 
 
 import android.os.Handler;
@@ -55,7 +56,7 @@ public class ImageLoader {
         executorService.submit(new PhotosLoader(p));
     }
     
-    private Bitmap getBitmap(String url) 
+    public Bitmap getBitmap(String url) 
     {
         File f=fileCache.getFile(url);
         
