@@ -66,15 +66,15 @@ public class TileSlicer {
 					y = colI * tileSize;
 					// slice
 					bitmap = Bitmap.createBitmap(original, x, y, tileSize, tileSize);
-					// draw border lines
+					//draw border lines
 					Canvas canvas = new Canvas(bitmap);
-					Paint paint = new Paint();
-					paint.setColor(Color.parseColor("#fbfdff"));
-					int end = tileSize - 1;
-					canvas.drawLine(0, 0, 0, end, paint);
-					canvas.drawLine(0, end, end, end, paint);
-					canvas.drawLine(end, end, end, 0, paint);
-					canvas.drawLine(end, 0, 0, 0, paint);
+//					Paint paint = new Paint();
+//					paint.setColor(Color.parseColor("#fbfdff"));
+//					int end = tileSize - 1;
+//					canvas.drawLine(0, 0, 0, end, paint);
+//					canvas.drawLine(0, end, end, end, paint);
+//					canvas.drawLine(end, end, end, 0, paint);
+//					canvas.drawLine(end, 0, 0, 0, paint);
 					slices.add(bitmap);
 				}
 			}
