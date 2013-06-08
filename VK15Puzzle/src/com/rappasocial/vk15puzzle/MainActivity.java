@@ -77,7 +77,7 @@ public class MainActivity extends Activity {
 				e.printStackTrace();
 			}
 			ImageLoader imageLoader = new ImageLoader(MainActivity.this);
-			imageLoader.DisplayImage(extApp.arFriends.get(0).photo_big,
+			imageLoader.DisplayImage(extApp.arFriends.get(0).photo_max_orig,
 					ivBig);
 
 			boxAdapter = new BoxAdapterFriends(extApp.arFriends,

@@ -69,7 +69,7 @@ public class TileSlicer {
 					//draw border lines
 					Canvas canvas = new Canvas(bitmap);
 //					Paint paint = new Paint();
-//					paint.setColor(Color.parseColor("#fbfdff"));
+//					paint.setColor(Color.parseColor("#6084ab"));
 //					int end = tileSize - 1;
 //					canvas.drawLine(0, 0, 0, end, paint);
 //					canvas.drawLine(0, end, end, end, paint);

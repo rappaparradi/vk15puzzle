@@ -3,6 +3,7 @@ package cz.destil.sliderpuzzle.ui;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PointF;
@@ -39,6 +40,7 @@ import cz.destil.sliderpuzzle.util.TileSlicer;
  * @author David Vavra
  * 
  */
+@SuppressLint("NewApi")
 public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 
 	public static final int GRID_SIZE = 4; // 4x4
@@ -161,6 +163,7 @@ public void PutURL(String url, Context context) {
 	 * Handling of touch events. High-level logic for moving tiles on the game
 	 * board.
 	 */
+	@SuppressLint("NewApi")
 	public boolean onTouch(View v, MotionEvent event) {
 		TileView touchedTile = (TileView) v;
 		if (touchedTile.isEmpty() || !touchedTile.isInRowOrColumnOf(emptyTile)) {
@@ -234,6 +237,7 @@ public void PutURL(String url, Context context) {
 	 * 
 	 * @param event
 	 */
+	@SuppressLint("NewApi")
 	private void followFinger(MotionEvent event) {
 		boolean impossibleMove = true;
 		float dxEvent = event.getRawX() - lastDragPoint.x;
