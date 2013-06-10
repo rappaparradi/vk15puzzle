@@ -2,5 +2,6 @@
 <resources>
 
     <string name="app_name">vk15puzzle</string>
+    <string name="tvKolDvizN">Движений:</string>
 
 </resources>

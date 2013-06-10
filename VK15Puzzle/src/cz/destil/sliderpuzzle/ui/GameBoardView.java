@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -24,6 +25,8 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.FloatEvaluator;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.perm.kate.api.sample.ImageLoader;
 
+
+import com.rappasocial.vk15puzzle.GameActivity;
 import com.rappasocial.vk15puzzle.R;
 import cz.destil.sliderpuzzle.data.Coordinate;
 import cz.destil.sliderpuzzle.util.TileSlicer;
@@ -43,7 +46,7 @@ import cz.destil.sliderpuzzle.util.TileSlicer;
 @SuppressLint("NewApi")
 public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 
-	public static final int GRID_SIZE = 4; // 4x4
+	public static final int GRID_SIZE = 3; // 4x4
 
 	public enum Direction {
 		X, Y
@@ -187,6 +190,9 @@ public void PutURL(String url, Context context) {
 				// if drag was over 50% or it's click, do the move
 				if (lastDragMovedAtLeastHalfWay() || isClick()) {
 					animateTilesToEmptySpace();
+					
+					Intent intentACTION_MOVE_DONE = new Intent(GameActivity.ACTION_MOVE_DONE); 
+					context.sendBroadcast(intentACTION_MOVE_DONE);
 				} else {
 					animateTilesBackToOrigin();
 				}

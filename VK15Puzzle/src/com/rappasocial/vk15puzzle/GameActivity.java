@@ -6,7 +6,10 @@ import cz.destil.sliderpuzzle.ui.GameBoardView;
 import java.util.Date;
 import java.util.LinkedList;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.TextView;
@@ -35,14 +38,25 @@ public class GameActivity extends SherlockActivity {
 	Thread timerThread;
 	long secondCounter,hourCounter, minuteCounter;
 	boolean continueThread;
-	TextView secTextView, minTextView, hourTextView;
+	TextView secTextView, minTextView, hourTextView, tvKolDviz;
+	int KolDvizCounter;
 	Date dateStart;
+	public static final String ACTION_MOVE_DONE = "com.rappasocial.vk15puzzle.ACTION_MOVE_DONE";
+	private BroadcastReceiver receiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+
+			countMovesIncr();
+
+		}
+	};
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game_activity);
 		extApp = (ExtendedApplication) getApplicationContext();
+		
 		try {
 			gameBoard = (GameBoardView) findViewById(R.id.gameboard);
 			gameBoard.PutURL(extApp.arFriends.get(extApp.frNumber).photo_max_orig,
@@ -61,11 +75,34 @@ public class GameActivity extends SherlockActivity {
 		secTextView = (TextView) findViewById(R.id.secTextView);
 		minTextView = (TextView) findViewById(R.id.minTextView);
 		hourTextView = (TextView) findViewById(R.id.hourTextView);
+		tvKolDviz = (TextView) findViewById(R.id.tvKolDviz);
 		dateStart = new Date(System.currentTimeMillis());
 		continueThread = true;
 		timeUpdate();
+		KolDvizCounter = 0;
+		tvKolDviz.setText(String.valueOf(KolDvizCounter));
 		
 	}
+	
+	
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(ACTION_MOVE_DONE);
+
+		this.registerReceiver(this.receiver, filter);
+	}
+
+	void countMovesIncr(){
+		
+		KolDvizCounter++;
+		tvKolDviz.setText(String.valueOf(KolDvizCounter));
+		
+	}
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
