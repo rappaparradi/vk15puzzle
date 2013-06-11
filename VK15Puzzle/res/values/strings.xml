@@ -3,5 +3,10 @@
 
     <string name="app_name">vk15puzzle</string>
     <string name="tvKolDvizN">Движений:</string>
+    <string name="settings">Настройки</string>
+    <string name="rate">Оценить на Google PLay</string>
+    <string name="getpro">Купить платную версию</string>
+    <string name="share">Сохрани глаза другу</string>
+    <string name="about">О программе</string>
 
 </resources>
