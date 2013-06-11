@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_settings"
+        android:icon="@drawable/menu"
+        android:orderInCategory="100"
+        android:showAsAction="always">
+        <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+            <item
+                android:id="@+id/menu_item_settings"
+                android:icon="@drawable/cogs"
+                android:title="@string/settings"
+                android:showAsAction="ifRoom|withText"/>
+            <item
+                android:id="@+id/menu_item_rate"
+                android:icon="@drawable/thumbs_up"
+                android:title="@string/rate"
+                android:showAsAction="ifRoom|withText"/>
+            <item
+                android:id="@+id/menu_item_getpro"
+                android:icon="@drawable/in"
+                android:title="@string/getpro"
+                android:showAsAction="ifRoom|withText"/>
+            <item
+                android:id="@+id/menu_item_share"
+                android:actionProviderClass="com.actionbarsherlock.widget.ShareActionProvider"
+                android:icon="@drawable/share"
+                android:title="@string/share"
+                android:showAsAction="ifRoom|withText"/>
+            <item
+                android:id="@+id/menu_item_about"
+                android:icon="@drawable/info"
+                android:title="@string/about"
+                android:showAsAction="ifRoom|withText"/>
+
+        </menu>
+    </item>
+
+</menu>

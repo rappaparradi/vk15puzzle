@@ -6,18 +6,25 @@ import cz.destil.sliderpuzzle.ui.GameBoardView;
 import java.util.Date;
 import java.util.LinkedList;
 
+import org.holoeverywhere.app.AlertDialog;
+
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.ShareActionProvider;
+
 
 import com.rappasocial.vk15puzzle.R;
 
@@ -33,6 +40,8 @@ import com.rappasocial.vk15puzzle.R;
 
 public class GameActivity extends SherlockActivity {
 
+	
+
 	private GameBoardView gameBoard;
 	ExtendedApplication extApp;
 	Thread timerThread;
@@ -41,6 +50,7 @@ public class GameActivity extends SherlockActivity {
 	TextView secTextView, minTextView, hourTextView, tvKolDviz;
 	int KolDvizCounter;
 	Date dateStart;
+	private ShareActionProvider mShareActionProvider;
 	public static final String ACTION_MOVE_DONE = "com.rappasocial.vk15puzzle.ACTION_MOVE_DONE";
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
@@ -87,13 +97,21 @@ public class GameActivity extends SherlockActivity {
 	
 
 	@Override
-	protected void onPause() {
+	protected void onResume() {
 		// TODO Auto-generated method stub
-		super.onPause();
+		super.onResume();
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ACTION_MOVE_DONE);
 
 		this.registerReceiver(this.receiver, filter);
+	}
+	
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		
+		this.unregisterReceiver(this.receiver);
 	}
 
 	void countMovesIncr(){
@@ -106,24 +124,115 @@ public class GameActivity extends SherlockActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-//		MenuInflater inflater = getSupportMenuInflater();
-//		inflater.inflate(R.menu.main_menu, menu);
+
+		MenuInflater inflater = getSupportMenuInflater();
+		inflater.inflate(R.menu.settings_menu, menu);
+		// Fetch and store ShareActionProvider
+		MenuItem item = menu.findItem(R.id.menu_item_share);
+		mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+
 		return true;
+
+		// menu.add("Settings")
+		// .setIcon(R.drawable.cogs)
+		// .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		//
+		// menu.add("Search")
+		// .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM |
+		// MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		//
+		// menu.add("Share")
+		// .setIcon(R.drawable.share)
+		// .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		//
+		// menu.add("Fave")
+		// .setIcon(R.drawable.thumbs_up)
+		// .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		//
+		// menu.add("MenuLLL")
+		// .setIcon(R.drawable.menu)
+		// .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		//
+		// return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-//		if (item.getItemId() == R.id.new_game) {
-//		
-//			gameBoard.setTileOrder(null);
-//			gameBoard.fillTiles();
-//			return true; }
-//		else if(item.getItemId() ==R.id.about) {
-//			startActivity(new Intent(this, AboutActivity.class));
-//			return true;}
-//		else{
+		// Handle item selection
+		switch (item.getItemId()) {
+		case R.id.menu_item_share:
+
+//			Intent sendIntent = new Intent();
+//			sendIntent.setAction(Intent.ACTION_SEND);
+//			sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.sharetext));
+////			Uri uriToImage = Uri.parse("android.resource://com.rappasocial.eyesbreak/drawable/eyesbreak_shareimage.png");
+//			sendIntent.setType("text/plain");
+////			sendIntent.putExtra(Intent.EXTRA_STREAM, uriToImage);
+////			sendIntent.setType("image/*");
+//			setShareIntent(sendIntent);
+			return true;
+
+		case R.id.menu_item_settings:
+
+//			Intent intent = new Intent(MainScreen.this, SettingsActivity.class);
+//			startActivity(intent);
+			return true;
+			
+		case R.id.menu_item_rate:
+
+//			intent = new Intent(Intent.ACTION_VIEW);
+//		    //Try Google play
+//		    intent.setData(Uri.parse("market://details?id=com.rappasocial.eyesbreak"));
+//		    if (MyStartActivity(intent) == false) {
+//		        //Market (Google play) app seems not installed, let's try to open a webbrowser
+//		        intent.setData(Uri.parse("https://play.google.com/store/apps/details?com.rappasocial.eyesbreak"));
+//		        if (MyStartActivity(intent) == false) {
+//		            //Well if this also fails, we have run out of options, inform the user.
+//		            Toast.makeText(this, getString(R.string.gplaynotfound), Toast.LENGTH_SHORT).show();
+//		        }
+//		    }
+			return true;
+		
+		case R.id.menu_item_getpro:
+
+//			intent = new Intent(Intent.ACTION_VIEW);
+//		    //Try Google play
+//		    intent.setData(Uri.parse("market://details?id=com.rappasocial.eyesbreakpro"));
+//		    if (MyStartActivity(intent) == false) {
+//		        //Market (Google play) app seems not installed, let's try to open a webbrowser
+//		        intent.setData(Uri.parse("https://play.google.com/store/apps/details?com.rappasocial.eyesbreakpro"));
+//		        if (MyStartActivity(intent) == false) {
+//		            //Well if this also fails, we have run out of options, inform the user.
+//		            Toast.makeText(this, getString(R.string.gplaynotfound), Toast.LENGTH_SHORT).show();
+//		        }
+//		    }
+			return true;
+			
+		case R.id.menu_item_about:
+
+//			AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+//			alertDialog.setTitle(getString(R.string.about));
+//			alertDialog.setMessage(getString(R.string.abouttext));
+//			alertDialog.show();
+			return true;
+			
+			
+
+		default:
 			return super.onOptionsItemSelected(item);
-//		}
+		}
+	}
+	
+	private boolean MyStartActivity(Intent aIntent) {
+	    try
+	    {
+	        startActivity(aIntent);
+	        return true;
+	    }
+	    catch (ActivityNotFoundException e)
+	    {
+	        return false;
+	    }
 	}
 
 	@Override
