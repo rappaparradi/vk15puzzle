@@ -162,14 +162,14 @@ public class GameActivity extends SherlockActivity {
 		switch (item.getItemId()) {
 		case R.id.menu_item_share:
 
-//			Intent sendIntent = new Intent();
-//			sendIntent.setAction(Intent.ACTION_SEND);
-//			sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.sharetext));
-////			Uri uriToImage = Uri.parse("android.resource://com.rappasocial.eyesbreak/drawable/eyesbreak_shareimage.png");
-//			sendIntent.setType("text/plain");
-////			sendIntent.putExtra(Intent.EXTRA_STREAM, uriToImage);
-////			sendIntent.setType("image/*");
-//			setShareIntent(sendIntent);
+			Intent sendIntent = new Intent();
+			sendIntent.setAction(Intent.ACTION_SEND);
+			sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.sharetext));
+//			Uri uriToImage = Uri.parse("android.resource://com.rappasocial.eyesbreak/drawable/eyesbreak_shareimage.png");
+			sendIntent.setType("text/plain");
+//			sendIntent.putExtra(Intent.EXTRA_STREAM, uriToImage);
+//			sendIntent.setType("image/*");
+			setShareIntent(sendIntent);
 			return true;
 
 		case R.id.menu_item_settings:
@@ -239,6 +239,12 @@ public class GameActivity extends SherlockActivity {
 	public Object onRetainNonConfigurationInstance() {
 		// preserve state when rotated
 		return gameBoard.getTileOrder();
+	}
+	
+	private void setShareIntent(Intent shareIntent) {
+		if (mShareActionProvider != null) {
+			mShareActionProvider.setShareIntent(shareIntent);
+		}
 	}
 	
 	public void timeUpdate()

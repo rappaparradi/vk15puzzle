@@ -6,7 +6,8 @@
     <string name="settings">Настройки</string>
     <string name="rate">Оценить на Google PLay</string>
     <string name="getpro">Купить платную версию</string>
-    <string name="share">Сохрани глаза другу</string>
+    <string name="share">Поделиться</string>
     <string name="about">О программе</string>
+    <string name="sharetext">Пятнашки Вконтакте. (Скачай приложение на Google Play) https://play.google.com/store/apps/details?id=com.rappasocial.vk15puzzle</string>
 
 </resources>
