@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/background"
+    android:background="@drawable/bg_pattern_main"
     android:orientation="vertical"
     android:padding="4dp" >
 
@@ -56,7 +56,7 @@
         </cz.destil.sliderpuzzle.ui.GameBoardView>
 
         <Button
-            android:id="@+id/button1"
+            android:id="@+id/btRefreshGame"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center"
@@ -80,6 +80,7 @@
 
         <TextView
             android:id="@+id/tvKolDviz"
+            android:layout_marginLeft="2dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="" />

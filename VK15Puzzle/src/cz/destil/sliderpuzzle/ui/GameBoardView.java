@@ -2,6 +2,7 @@ package cz.destil.sliderpuzzle.ui;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -18,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
@@ -54,6 +56,9 @@ public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 
 	private int tileSize;
 	private ArrayList<TileView> tiles;
+	private ArrayList<TileView> tilesOriginal;
+	
+
 	private TileView emptyTile, movedTile;
 	private boolean boardCreated;
 	private RectF gameboardRect;
@@ -61,7 +66,9 @@ public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 	public String vkphotourl;
 	private ArrayList<GameTileMotionDescriptor> currentMotionDescriptors;
 	private LinkedList<Integer> tileOrder;
+	private LinkedList<Integer> tileOrderOriginal;
 	public Context context;
+	public TileSlicer tileSlicer;
 	
 	
 	public GameBoardView(Context context, AttributeSet attrSet, String url) {
@@ -114,8 +121,12 @@ public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 		ImageLoader imageLoader = new ImageLoader(context);
 		
 		Bitmap original = imageLoader.getBitmap(url);
-		TileSlicer tileSlicer = new TileSlicer(original, GRID_SIZE, getContext());
+		tileSlicer = new TileSlicer(original, GRID_SIZE, getContext());
 		// order slices
+//		tileOrderOriginal = getTileOrder();
+	
+
+		
 		if (tileOrder == null) {
 			tileSlicer.randomizeSlices();
 		} else {
@@ -193,6 +204,10 @@ public void PutURL(String url, Context context) {
 					
 					Intent intentACTION_MOVE_DONE = new Intent(GameActivity.ACTION_MOVE_DONE); 
 					context.sendBroadcast(intentACTION_MOVE_DONE);
+					
+					
+					
+					
 				} else {
 					animateTilesBackToOrigin();
 				}
@@ -203,6 +218,67 @@ public void PutURL(String url, Context context) {
 			return true;
 		}
 	}
+	
+	boolean missionSucceeded(){
+		
+		boolean q = true;
+		for (int i = 0; i < 8; i++) {
+		
+			if (tileSlicer.sliceOrderOriginal.get(((BitmapDrawable)tiles.get(i).getDrawable()).getBitmap()) != orderNumFromCoordinate(tiles.get(i).coordinate.row, tiles.get(i).coordinate.column))
+			{
+				 q = false;
+				 break;
+				
+			}else {
+				
+				q = q;
+				
+			}
+			
+		}
+		
+		return q;
+		
+	} 
+	
+ int orderNumFromCoordinate(int x, int y){
+		
+		if (x == 0 && y == 0) {
+			
+			return 0;
+			
+		}else if (x == 0 && y == 1) {
+			
+			return 1;
+			
+		}else if (x == 0 && y == 2) {
+			
+			return 2;
+			
+		}else if (x == 1 && y == 0) {
+			
+			return 3;
+			
+		}else if (x == 1 && y == 1) {
+			
+			return 4;
+			
+		}else if (x == 1 && y == 2) {
+			
+			return 5;
+			
+		}else if (x == 2 && y == 0) {
+			
+			return 6;
+			
+		}else if (x == 2 && y == 1) {
+			
+			return 7;
+			
+		} else return 9;
+		
+		
+	} 
 
 	/**
 	 * @return Whether last drag moved with the tile more than 50% of its size
@@ -352,6 +428,11 @@ public void PutURL(String url, Context context) {
 				public void onAnimationEnd(Animator animation) {
 					motionDescriptor.tile.coordinate = motionDescriptor.finalCoordinate;
 					motionDescriptor.tile.setXY(motionDescriptor.finalRect.left, motionDescriptor.finalRect.top);
+					if (missionSucceeded()) {	
+						
+						Toast.makeText(context, "SUCCESS", Toast.LENGTH_LONG).show();
+						
+					}
 				}
 			});
 			animator.start();

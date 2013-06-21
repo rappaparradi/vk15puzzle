@@ -1,8 +1,10 @@
 package cz.destil.sliderpuzzle.util;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -26,10 +28,11 @@ public class TileSlicer {
 
 	private Bitmap original;
 	private int tileSize, gridSize;
-	private List<Bitmap> slices;
+	public List<Bitmap> slices;
 	private int lastSliceServed;
 	private List<Integer> sliceOrder;
 	private Context context;
+	public HashMap<Bitmap, Integer> sliceOrderOriginal;
 
 	/**
 	 * Initializes TileSlicer.
@@ -52,10 +55,12 @@ public class TileSlicer {
 	/**
 	 * Slices original bitmap and adds border to slices.
 	 */
-	private void sliceOriginal() {
+	public void sliceOriginal() {
 		int x, y;
 		Bitmap bitmap;
+		int i = 0;
 		lastSliceServed = 0;
+		sliceOrderOriginal = new HashMap<Bitmap, Integer>();
 		for (int rowI = 0; rowI < gridSize; rowI++) {
 			for (int colI = 0; colI < gridSize; colI++) {
 				// don't slice last part - empty slice
@@ -66,6 +71,7 @@ public class TileSlicer {
 					y = colI * tileSize;
 					// slice
 					bitmap = Bitmap.createBitmap(original, x, y, tileSize, tileSize);
+					sliceOrderOriginal.put(bitmap, i);
 					//draw border lines
 					Canvas canvas = new Canvas(bitmap);
 //					Paint paint = new Paint();
@@ -76,6 +82,7 @@ public class TileSlicer {
 //					canvas.drawLine(end, end, end, 0, paint);
 //					canvas.drawLine(end, 0, 0, 0, paint);
 					slices.add(bitmap);
+					i++;
 				}
 			}
 		}

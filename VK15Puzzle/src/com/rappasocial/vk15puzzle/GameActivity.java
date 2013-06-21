@@ -11,11 +11,17 @@ import org.holoeverywhere.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +30,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
+
 
 
 import com.rappasocial.vk15puzzle.R;
@@ -38,7 +45,7 @@ import com.rappasocial.vk15puzzle.R;
 
 
 
-public class GameActivity extends SherlockActivity {
+public class GameActivity extends SherlockActivity implements OnClickListener {
 
 	
 
@@ -50,6 +57,7 @@ public class GameActivity extends SherlockActivity {
 	TextView secTextView, minTextView, hourTextView, tvKolDviz;
 	int KolDvizCounter;
 	Date dateStart;
+	Button btRefreshGame;
 	private ShareActionProvider mShareActionProvider;
 	public static final String ACTION_MOVE_DONE = "com.rappasocial.vk15puzzle.ACTION_MOVE_DONE";
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -86,6 +94,8 @@ public class GameActivity extends SherlockActivity {
 		minTextView = (TextView) findViewById(R.id.minTextView);
 		hourTextView = (TextView) findViewById(R.id.hourTextView);
 		tvKolDviz = (TextView) findViewById(R.id.tvKolDviz);
+		btRefreshGame = (Button) findViewById(R.id.btRefreshGame);
+		btRefreshGame.setOnClickListener(this);
 		dateStart = new Date(System.currentTimeMillis());
 		continueThread = true;
 		timeUpdate();
@@ -314,5 +324,25 @@ public class GameActivity extends SherlockActivity {
 	            hourTextView.setText("" + hourCounter);
 	    }
 	};
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch (v.getId()) {
+
+		case R.id.btRefreshGame:
+
+			Animation animRotate = AnimationUtils.loadAnimation(this,
+					R.anim.anim_rotate);
+			v.startAnimation(animRotate);
+			
+			break;
+
+		
+
+		}
+
+	
+	}
 	
 }

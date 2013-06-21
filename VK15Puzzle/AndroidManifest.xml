@@ -37,11 +37,7 @@
             android:label="@string/app_name"
         />
         
-        <receiver android:name=".MoveDoneBroadcastReceiver" >
-            <intent-filter>
-                <action android:name="com.application.ACTION_MOVE_DONE" />
-            </intent-filter>
-        </receiver>
+ 
         
         
     </application>
