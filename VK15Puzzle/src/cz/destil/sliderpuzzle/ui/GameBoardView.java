@@ -241,7 +241,7 @@ public void PutURL(String url, Context context) {
 		
 	} 
 	
- int orderNumFromCoordinate(int x, int y){
+ int orderNumFromCoordinate(int y, int x){
 		
 		if (x == 0 && y == 0) {
 			
