@@ -2,6 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:gravity="center_vertical"
+    android:background="@drawable/bg_pattern_main"
     android:orientation="vertical" >
 
     <Button
@@ -9,19 +11,6 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Авторизация"
-    />
-    
-    <EditText
-        android:id="@+id/message"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Тестовая запись на стене"
-    />
-    <Button
-        android:id="@+id/post"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Отправить запись на стену"
     />
     
     <Button
@@ -47,7 +36,9 @@
     <ListView
         android:id="@+id/lvFriends"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:visibility="gone" >
+
     </ListView>
 
 </LinearLayout>

@@ -60,7 +60,7 @@ public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 	
 
 	private TileView emptyTile, movedTile;
-	private boolean boardCreated;
+	public boolean boardCreated;
 	private RectF gameboardRect;
 	private PointF lastDragPoint;
 	public String vkphotourl;
@@ -124,7 +124,7 @@ public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 		tileSlicer = new TileSlicer(original, GRID_SIZE, getContext());
 		// order slices
 //		tileOrderOriginal = getTileOrder();
-	
+	    
 
 		
 		if (tileOrder == null) {

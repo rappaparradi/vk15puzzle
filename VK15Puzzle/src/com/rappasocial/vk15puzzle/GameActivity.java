@@ -5,6 +5,7 @@ import cz.destil.sliderpuzzle.ui.GameBoardView;
 
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Random;
 
 import org.holoeverywhere.app.AlertDialog;
 
@@ -74,21 +75,11 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game_activity);
 		extApp = (ExtendedApplication) getApplicationContext();
+		randomizeFriendNum();
 		
-		try {
-			gameBoard = (GameBoardView) findViewById(R.id.gameboard);
-			gameBoard.PutURL(extApp.arFriends.get(extApp.frNumber).photo_max_orig,
-					GameActivity.this);
-			gameBoard.setTileOrder(null);
-			// use preserved tile locations when orientation changed
-			@SuppressWarnings({ "deprecation", "unchecked" })
-			final LinkedList<Integer> tileOrder = (LinkedList<Integer>) getLastNonConfigurationInstance();
-			if (tileOrder != null) {
-				gameBoard.setTileOrder(tileOrder);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		initgameBoard();
+		
+		
 		
 		secTextView = (TextView) findViewById(R.id.secTextView);
 		minTextView = (TextView) findViewById(R.id.minTextView);
@@ -103,6 +94,47 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 		tvKolDviz.setText(String.valueOf(KolDvizCounter));
 		
 	}
+	
+	public void randomizeFriendNum()
+	{
+		Random random = new Random();
+		extApp.frNumber = showRandomInteger(0, extApp.arFriends.size() - 1, random);
+		
+	}
+	
+	public void initgameBoard()
+	{
+		try {
+			gameBoard = (GameBoardView) findViewById(R.id.gameboard);
+			while (extApp.arFriends.get(extApp.frNumber).photo_max_orig == null){
+				randomizeFriendNum();
+			}
+			gameBoard.PutURL(extApp.arFriends.get(extApp.frNumber).photo_max_orig,
+					GameActivity.this);
+			gameBoard.setTileOrder(null);
+			// use preserved tile locations when orientation changed
+			@SuppressWarnings({ "deprecation", "unchecked" })
+			final LinkedList<Integer> tileOrder = (LinkedList<Integer>) getLastNonConfigurationInstance();
+			if (tileOrder != null) {
+				gameBoard.setTileOrder(tileOrder);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private static int showRandomInteger(int aStart, int aEnd, Random aRandom){
+	    if ( aStart > aEnd ) {
+	      throw new IllegalArgumentException("Start cannot exceed End.");
+	    }
+	    //get the range, casting to long to avoid overflow problems
+	    long range = (long)aEnd - (long)aStart + 1;
+	    // compute a fraction of the range, 0 <= frac < range
+	    long fraction = (long)(range * aRandom.nextDouble());
+	    int randomNumber =  (int)(fraction + aStart);    
+	    return randomNumber;
+	  }
 	
 	
 
@@ -335,6 +367,47 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 			Animation animRotate = AnimationUtils.loadAnimation(this,
 					R.anim.anim_rotate);
 			v.startAnimation(animRotate);
+			
+			gameBoard.post(new Runnable() {
+			      public void run() {
+			    	  
+			    	  randomizeFriendNum();
+						
+						gameBoard.boardCreated = false;
+						initgameBoard();
+						
+						dateStart = new Date(System.currentTimeMillis());
+						secondCounter = 0; 
+						hourCounter = 0;
+						minuteCounter = 0;
+						KolDvizCounter = 0;
+						tvKolDviz.setText(String.valueOf(KolDvizCounter));
+			      
+			      }
+			    });
+			
+//			Thread t = new Thread(new Runnable() {
+//			      public void run() {
+//			    	  
+//			    	  randomizeFriendNum();
+//						
+//						gameBoard.boardCreated = false;
+//						initgameBoard();
+//						
+//						dateStart = new Date(System.currentTimeMillis());
+//						secondCounter = 0; 
+//						hourCounter = 0;
+//						minuteCounter = 0;
+//						KolDvizCounter = 0;
+//						tvKolDviz.setText(String.valueOf(KolDvizCounter));
+//			      
+//			      }
+//			    });
+//			    t.start();
+			 
+
+			
+			
 			
 			break;
 

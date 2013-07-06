@@ -46,7 +46,7 @@ public class TileSlicer {
 		super();
 		this.original = original;
 		this.gridSize = gridSize;
-		this.tileSize = original.getWidth() / gridSize;
+		this.tileSize = (original.getWidth() <= original.getHeight() ? original.getWidth(): original.getHeight()) / gridSize;
 		this.context = context;
 		slices = new LinkedList<Bitmap>();
 		sliceOriginal();
@@ -70,7 +70,10 @@ public class TileSlicer {
 					x = rowI * tileSize;
 					y = colI * tileSize;
 					// slice
+					bitmap = null;
+				
 					bitmap = Bitmap.createBitmap(original, x, y, tileSize, tileSize);
+					
 					sliceOrderOriginal.put(bitmap, i);
 					//draw border lines
 					Canvas canvas = new Canvas(bitmap);

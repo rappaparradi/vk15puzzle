@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
 	Button postButton;
 	ImageView ivBig;
 	Button btStartGame;
-	BoxAdapterFriends boxAdapter;
+//	BoxAdapterFriends boxAdapter;
 	EditText messageEditText;
 	ListView lvFriends;
 	Account account = new Account();
@@ -69,23 +69,23 @@ public class MainActivity extends Activity {
 
 			try {
 
-				extApp.arFriends = api.getFriends(account.user_id, null, 20,
+				extApp.arFriends = api.getFriends(account.user_id, null, null,
 						null, null, null);
 				// Показать сообщение в UI потоке
-				runOnUiThread(successRunnable);
+//				runOnUiThread(successRunnable);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			ImageLoader imageLoader = new ImageLoader(MainActivity.this);
-			imageLoader.DisplayImage(extApp.arFriends.get(0).photo_max_orig,
-					ivBig);
+//			ImageLoader imageLoader = new ImageLoader(MainActivity.this);
+//			imageLoader.DisplayImage(extApp.arFriends.get(0).photo_max_orig,
+//					ivBig);
 
-			boxAdapter = new BoxAdapterFriends(extApp.arFriends,
-					MainActivity.this);
-
-			lvFriends = (ListView) findViewById(R.id.lvFriends);
-
-			lvFriends.setAdapter(boxAdapter);
+//			boxAdapter = new BoxAdapterFriends(extApp.arFriends,
+//					MainActivity.this);
+//
+//			lvFriends = (ListView) findViewById(R.id.lvFriends);
+//
+//			lvFriends.setAdapter(boxAdapter);
 		}
 		
 //		try {
@@ -108,11 +108,11 @@ public class MainActivity extends Activity {
 	private void setupUI() {
 		authorizeButton = (Button) findViewById(R.id.authorize);
 		logoutButton = (Button) findViewById(R.id.logout);
-		postButton = (Button) findViewById(R.id.post);
-		messageEditText = (EditText) findViewById(R.id.message);
+//		postButton = (Button) findViewById(R.id.post);
+//		messageEditText = (EditText) findViewById(R.id.message);
 		authorizeButton.setOnClickListener(authorizeClick);
 		logoutButton.setOnClickListener(logoutClick);
-		postButton.setOnClickListener(postClick);
+//		postButton.setOnClickListener(postClick);
 		btStartGame = (Button) findViewById(R.id.btStartGame);
 		btStartGame.setOnClickListener(btStartGameClick);
 		ivBig = (ImageView) findViewById(R.id.ivBig);
@@ -184,7 +184,7 @@ public class MainActivity extends Activity {
 					api.createWallPost(account.user_id, text, null, null,
 							false, false, false, null, null, null, null);
 					// Показать сообщение в UI потоке
-					runOnUiThread(successRunnable);
+//					runOnUiThread(successRunnable);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -212,160 +212,160 @@ public class MainActivity extends Activity {
 		if (api != null) {
 			authorizeButton.setVisibility(View.GONE);
 			logoutButton.setVisibility(View.VISIBLE);
-			postButton.setVisibility(View.VISIBLE);
-			messageEditText.setVisibility(View.VISIBLE);
+//			postButton.setVisibility(View.VISIBLE);
+//			messageEditText.setVisibility(View.VISIBLE);
 		} else {
 			authorizeButton.setVisibility(View.VISIBLE);
 			logoutButton.setVisibility(View.GONE);
-			postButton.setVisibility(View.GONE);
-			messageEditText.setVisibility(View.GONE);
+//			postButton.setVisibility(View.GONE);
+//			messageEditText.setVisibility(View.GONE);
 		}
 	}
 
-	private class ViewHolder {
-		public ImageView ivFriendAva;
-		public TextView tvFriendName;
-		public TextView tvIsOnline;
-		public int position;
-
-	}
-
-	public class BoxAdapterFriends extends ArrayAdapter<User> implements
-			OnClickListener, OnItemClickListener {
-		Context ctx;
-		LayoutInflater lInflater;
-		ArrayList<User> objects;
-		public ImageLoader imageLoader;
-		// private LayoutInflater inflater = null;
-
-		// ExtendedApplication extApp;
-		LinearLayout llRoutineEditBG, llRoutineEditClickAble;
-
-		public BoxAdapterFriends(ArrayList<User> objects, Context ctx) {
-			super(MainActivity.this, R.layout.friend_list_item,
-					R.id.tvFriendName, objects);
-			// extApp = (ExtendedApplication) ctx.getApplicationContext();
-			// inflater =
-			// (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			imageLoader = new ImageLoader(ctx);
-			this.ctx = ctx;
-		}
-
-		// BoxAdapterRoutine(Context context, ArrayList<Routine> routines) {
-		// ctx = context;
-		// objects = routines;
-		// lInflater = (LayoutInflater) ctx
-		// .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		// extApp = (ExtendedApplication)ctx.getApplicationContext();
-		// }
-
-		// public int getCount() {
-		// return objects.size();
-		// }
-		//
-		//
-		// public Routine getItem(int position) {
-		// return objects.get(position);
-		// }
-		//
-		//
-		// public long getItemId(int position) {
-		// return position;
-		// }
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-
-			// View view = convertView;
-			// if (view == null) {
-			// view = lInflater.inflate(R.layout.routine_list_item, parent,
-			// false);
-			// }
-			//
-			// Routine p = getRoutine(position);
-			//
-			//
-			// ((TextView)
-			// view.findViewById(R.id.tvRoutineName)).setText(p.name);
-			// Button btEditRoutine = (Button)
-			// view.findViewById(R.id.btEditRoutine);
-			// btEditRoutine.setTag(position);
-			// btEditRoutine.setOnClickListener(this);
-			// // ((Button)
-			// view.findViewById(R.id.btEditRoutine)).setOnClickListener(this);
-			// // btEditRoutine.setOnClickListener(this);
-			//
-			// return view;
-
-			View v = super.getView(position, convertView, parent);
-
-			if (v != convertView && v != null) {
-				ViewHolder holder = new ViewHolder();
-
-				ImageView ivFriendAva = (ImageView) v
-						.findViewById(R.id.ivFriendAva);
-				TextView tvFriendName = (TextView) v
-						.findViewById(R.id.tvFriendName);
-				TextView tvIsOnline = (TextView) v
-						.findViewById(R.id.tvIsOnline);
-
-				holder.ivFriendAva = ivFriendAva;
-
-				holder.tvFriendName = tvFriendName;
-				holder.tvIsOnline = tvIsOnline;
-
-				v.setTag(holder);
-			}
-
-			//
-
-			ViewHolder holder = (ViewHolder) v.getTag();
-
-			imageLoader.DisplayImage(getItem(position).photo_medium,
-					holder.ivFriendAva);
-
-			holder.tvFriendName.setText(getItem(position).first_name + " "
-					+ getItem(position).last_name);
-			holder.tvIsOnline.setText(String.valueOf(getItem(position).online));
-
-			v.setOnClickListener(this);
-
-			holder.position = position;
-
-			return v;
-
-		}
-
-		Drawable drawable_from_url(String url, String src_name)
-				throws java.net.MalformedURLException, java.io.IOException {
-			return Drawable.createFromStream(
-					((java.io.InputStream) new java.net.URL(url).getContent()),
-					src_name);
-		}
-
-		User getRoutine(int position) {
-			return getItem(position);
-		}
-
-		@Override
-		public void onClick(View v) {
-
-//			switch (v.getId()) {
+//	private class ViewHolder {
+//		public ImageView ivFriendAva;
+//		public TextView tvFriendName;
+//		public TextView tvIsOnline;
+//		public int position;
 //
-//			case R.id.btEditRoutine:
+//	}
+
+//	public class BoxAdapterFriends extends ArrayAdapter<User> implements
+//			OnClickListener, OnItemClickListener {
+//		Context ctx;
+//		LayoutInflater lInflater;
+//		ArrayList<User> objects;
+//		public ImageLoader imageLoader;
+//		// private LayoutInflater inflater = null;
+//
+//		// ExtendedApplication extApp;
+//		LinearLayout llRoutineEditBG, llRoutineEditClickAble;
+//
+//		public BoxAdapterFriends(ArrayList<User> objects, Context ctx) {
+//			super(MainActivity.this, R.layout.friend_list_item,
+//					R.id.tvFriendName, objects);
+//			// extApp = (ExtendedApplication) ctx.getApplicationContext();
+//			// inflater =
+//			// (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//			imageLoader = new ImageLoader(ctx);
+//			this.ctx = ctx;
+//		}
+//
+//		// BoxAdapterRoutine(Context context, ArrayList<Routine> routines) {
+//		// ctx = context;
+//		// objects = routines;
+//		// lInflater = (LayoutInflater) ctx
+//		// .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//		// extApp = (ExtendedApplication)ctx.getApplicationContext();
+//		// }
+//
+//		// public int getCount() {
+//		// return objects.size();
+//		// }
+//		//
+//		//
+//		// public Routine getItem(int position) {
+//		// return objects.get(position);
+//		// }
+//		//
+//		//
+//		// public long getItemId(int position) {
+//		// return position;
+//		// }
+//
+//		@Override
+//		public View getView(int position, View convertView, ViewGroup parent) {
+//
+//			// View view = convertView;
+//			// if (view == null) {
+//			// view = lInflater.inflate(R.layout.routine_list_item, parent,
+//			// false);
+//			// }
 //			//
-//			break;
+//			// Routine p = getRoutine(position);
+//			//
+//			//
+//			// ((TextView)
+//			// view.findViewById(R.id.tvRoutineName)).setText(p.name);
+//			// Button btEditRoutine = (Button)
+//			// view.findViewById(R.id.btEditRoutine);
+//			// btEditRoutine.setTag(position);
+//			// btEditRoutine.setOnClickListener(this);
+//			// // ((Button)
+//			// view.findViewById(R.id.btEditRoutine)).setOnClickListener(this);
+//			// // btEditRoutine.setOnClickListener(this);
+//			//
+//			// return view;
 //
+//			View v = super.getView(position, convertView, parent);
+//
+//			if (v != convertView && v != null) {
+//				ViewHolder holder = new ViewHolder();
+//
+//				ImageView ivFriendAva = (ImageView) v
+//						.findViewById(R.id.ivFriendAva);
+//				TextView tvFriendName = (TextView) v
+//						.findViewById(R.id.tvFriendName);
+//				TextView tvIsOnline = (TextView) v
+//						.findViewById(R.id.tvIsOnline);
+//
+//				holder.ivFriendAva = ivFriendAva;
+//
+//				holder.tvFriendName = tvFriendName;
+//				holder.tvIsOnline = tvIsOnline;
+//
+//				v.setTag(holder);
 //			}
-			extApp.frNumber = ((ViewHolder) v.getTag()).position;
-
-		}
-
-		@Override
-		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-				long arg3) {
-
-		}
-
-	}
+//
+//			//
+//
+//			ViewHolder holder = (ViewHolder) v.getTag();
+//
+//			imageLoader.DisplayImage(getItem(position).photo_medium,
+//					holder.ivFriendAva);
+//
+//			holder.tvFriendName.setText(getItem(position).first_name + " "
+//					+ getItem(position).last_name);
+//			holder.tvIsOnline.setText(String.valueOf(getItem(position).online));
+//
+//			v.setOnClickListener(this);
+//
+//			holder.position = position;
+//
+//			return v;
+//
+//		}
+//
+//		Drawable drawable_from_url(String url, String src_name)
+//				throws java.net.MalformedURLException, java.io.IOException {
+//			return Drawable.createFromStream(
+//					((java.io.InputStream) new java.net.URL(url).getContent()),
+//					src_name);
+//		}
+//
+//		User getRoutine(int position) {
+//			return getItem(position);
+//		}
+//
+//		@Override
+//		public void onClick(View v) {
+//
+////			switch (v.getId()) {
+////
+////			case R.id.btEditRoutine:
+////			//
+////			break;
+////
+////			}
+//			extApp.frNumber = ((ViewHolder) v.getTag()).position;
+//
+//		}
+//
+//		@Override
+//		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+//				long arg3) {
+//
+//		}
+//
+//	}
 }
