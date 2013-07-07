@@ -1,5 +1,8 @@
 package cz.destil.sliderpuzzle.ui;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,6 +11,11 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -28,8 +36,12 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.perm.kate.api.sample.ImageLoader;
 
 
+
+import com.rappasocial.vk15puzzle.ExtendedApplication;
 import com.rappasocial.vk15puzzle.GameActivity;
 import com.rappasocial.vk15puzzle.R;
+import com.rappasocial.vk15puzzle.ScoresDialog;
+
 import cz.destil.sliderpuzzle.data.Coordinate;
 import cz.destil.sliderpuzzle.util.TileSlicer;
 
@@ -69,6 +81,7 @@ public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 	private LinkedList<Integer> tileOrderOriginal;
 	public Context context;
 	public TileSlicer tileSlicer;
+	Bitmap original;
 	
 	
 	public GameBoardView(Context context, AttributeSet attrSet, String url) {
@@ -120,7 +133,9 @@ public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 		// load image to slicer
 		ImageLoader imageLoader = new ImageLoader(context);
 		
-		Bitmap original = imageLoader.getBitmap(url);
+		original = imageLoader.getBitmap(url);
+		ExtendedApplication extApp = (ExtendedApplication) context.getApplicationContext();
+		extApp.scoreImage = original;
 		tileSlicer = new TileSlicer(original, GRID_SIZE, getContext());
 		// order slices
 //		tileOrderOriginal = getTileOrder();
@@ -431,6 +446,35 @@ public void PutURL(String url, Context context) {
 					if (missionSucceeded()) {	
 						
 						Toast.makeText(context, "SUCCESS", Toast.LENGTH_LONG).show();
+						Bitmap src = original; // the original file yourimage.jpg i added in resources
+					    Bitmap dest = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
+
+					    String yourText = "My custom Text adding to Image";
+
+					    Canvas cs = new Canvas(dest);
+					    Paint tPaint = new Paint();
+					    tPaint.setTextSize(35);
+					    tPaint.setColor(Color.BLUE);
+					    tPaint.setStyle(Style.FILL);
+					    cs.drawBitmap(src, 0f, 0f, null);
+					    float height = tPaint.measureText("yY");
+					    float width = tPaint.measureText(yourText);
+					    float x_coord = (src.getWidth() - width)/2;
+					    cs.drawText(yourText, x_coord, height+15f, tPaint); // 15f is to put space between top edge and the text, if you want to change it, you can
+					    ExtendedApplication extApp = (ExtendedApplication) context.getApplicationContext();
+					    extApp.scoreImage = dest;
+					    Intent intent = new Intent(context,
+					    		ScoresDialog.class);
+						
+					    context.startActivity(intent);
+		
+					    try {
+					        dest.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(new File("/sdcard/ImageAfterAddingText.jpg")));
+					        // dest is Bitmap, if you want to preview the final image, you can display it on screen also before saving
+					    } catch (FileNotFoundException e) {
+					        // TODO Auto-generated catch block
+					        e.printStackTrace();
+					    }
 						
 					}
 				}

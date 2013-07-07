@@ -15,6 +15,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -58,7 +63,7 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 	TextView secTextView, minTextView, hourTextView, tvKolDviz;
 	int KolDvizCounter;
 	Date dateStart;
-	Button btRefreshGame;
+	Button btRefreshGame, btShowSuccess;
 	private ShareActionProvider mShareActionProvider;
 	public static final String ACTION_MOVE_DONE = "com.rappasocial.vk15puzzle.ACTION_MOVE_DONE";
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -87,6 +92,9 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 		tvKolDviz = (TextView) findViewById(R.id.tvKolDviz);
 		btRefreshGame = (Button) findViewById(R.id.btRefreshGame);
 		btRefreshGame.setOnClickListener(this);
+		btShowSuccess = (Button) findViewById(R.id.btShowSuccess);
+		btShowSuccess.setOnClickListener(this);
+		
 		dateStart = new Date(System.currentTimeMillis());
 		continueThread = true;
 		timeUpdate();
@@ -361,16 +369,41 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		switch (v.getId()) {
+		
+		case R.id.btShowSuccess:
 
+			Bitmap src = extApp.scoreImage; // the original file yourimage.jpg i added in resources
+		    Bitmap dest = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
+
+		    String yourText = "My custom Text adding to Image";
+
+		    Canvas cs = new Canvas(dest);
+		    Paint tPaint = new Paint();
+		    tPaint.setTextSize(35);
+		    tPaint.setColor(Color.BLUE);
+		    tPaint.setStyle(Style.FILL);
+		    cs.drawBitmap(src, 0f, 0f, null);
+		    float height = tPaint.measureText("yY");
+		    float width = tPaint.measureText(yourText);
+		    float x_coord = (src.getWidth() - width)/2;
+		    cs.drawText(yourText, x_coord, height+15f, tPaint); // 15f is to put space between top edge and the text, if you want to change it, you can
+		   
+		    extApp.scoreImage = dest;
+		    Intent intent = new Intent(this,
+		    		ScoresDialog.class);
+			
+		    startActivity(intent);
+			
+			
+			break;
+		
 		case R.id.btRefreshGame:
 
 			Animation animRotate = AnimationUtils.loadAnimation(this,
 					R.anim.anim_rotate);
 			v.startAnimation(animRotate);
 			
-			gameBoard.post(new Runnable() {
-			      public void run() {
-			    	  
+			
 			    	  randomizeFriendNum();
 						
 						gameBoard.boardCreated = false;
@@ -383,8 +416,7 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 						KolDvizCounter = 0;
 						tvKolDviz.setText(String.valueOf(KolDvizCounter));
 			      
-			      }
-			    });
+		
 			
 //			Thread t = new Thread(new Runnable() {
 //			      public void run() {
