@@ -72,6 +72,7 @@
             android:layout_margin="4dp"
             android:layout_weight="0"
             android:text="" />
+    
     </LinearLayout>
 
     <LinearLayout
@@ -93,5 +94,7 @@
             android:layout_height="wrap_content"
             android:text="" />
     </LinearLayout>
+    
+    
 
 </RelativeLayout>

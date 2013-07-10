@@ -9,5 +9,7 @@
     <string name="share">Поделиться</string>
     <string name="about">О программе</string>
     <string name="sharetext">Пятнашки Вконтакте. (Скачай приложение на Google Play) https://play.google.com/store/apps/details?id=com.rappasocial.vk15puzzle</string>
-
+    <string name="startgame">Играть</string>
+    <string name="admob_id">a151d95f331cf34</string>
+    
 </resources>

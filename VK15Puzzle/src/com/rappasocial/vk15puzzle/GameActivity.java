@@ -23,6 +23,7 @@ import android.graphics.Paint.Style;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings.Secure;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
@@ -36,6 +37,8 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
 
 
 
@@ -100,6 +103,22 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 		timeUpdate();
 		KolDvizCounter = 0;
 		tvKolDviz.setText(String.valueOf(KolDvizCounter));
+		
+//		AdRequest adRequest = new AdRequest();
+//
+//		// test mode on DEVICE (this example code must be replaced with your
+//		// device uniquq ID)
+//		adRequest.addTestDevice(Secure.getString(this.getContentResolver(),
+//				Secure.ANDROID_ID));
+//
+//		AdView adView = (AdView) findViewById(R.id.ad);
+//
+//		// Initiate a request to load an ad in test mode.
+//		// You can keep this even when you release your app on the market,
+//		// because
+//		// only emulators and your test device will get test ads. The user will
+//		// receive real ads.
+//		adView.loadAd(adRequest);
 		
 	}
 	
@@ -379,14 +398,14 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 
 		    Canvas cs = new Canvas(dest);
 		    Paint tPaint = new Paint();
-		    tPaint.setTextSize(35);
-		    tPaint.setColor(Color.BLUE);
-		    tPaint.setStyle(Style.FILL);
+//		    tPaint.setTextSize(35);
+//		    tPaint.setColor(Color.BLUE);
+//		    tPaint.setStyle(Style.FILL);
 		    cs.drawBitmap(src, 0f, 0f, null);
-		    float height = tPaint.measureText("yY");
-		    float width = tPaint.measureText(yourText);
-		    float x_coord = (src.getWidth() - width)/2;
-		    cs.drawText(yourText, x_coord, height+15f, tPaint); // 15f is to put space between top edge and the text, if you want to change it, you can
+//		    float height = tPaint.measureText("yY");
+//		    float width = tPaint.measureText(yourText);
+//		    float x_coord = (src.getWidth() - width)/2;
+//		    cs.drawText(yourText, x_coord, height+15f, tPaint); // 15f is to put space between top edge and the text, if you want to change it, you can
 		   
 		    extApp.scoreImage = dest;
 		    Intent intent = new Intent(this,
