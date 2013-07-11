@@ -156,7 +156,7 @@ public class MainActivity extends Activity {
 	
 	private void startGameActivity() {
 		Intent intent = new Intent(MainActivity.this,
-				GameActivity.class);
+				LevelActivity.class);
 		startActivity(intent);
 	}
 

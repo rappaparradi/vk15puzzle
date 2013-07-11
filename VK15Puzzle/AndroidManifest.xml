@@ -44,6 +44,9 @@
         <activity android:name=".ScoresDialog"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/app_name"
+        /><activity android:name=".LevelActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:label="@string/app_name"
         />
         
         
