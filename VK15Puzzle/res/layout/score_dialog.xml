@@ -5,6 +5,14 @@
     android:background="@drawable/bg_pattern_main"
     android:orientation="vertical" >
 
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:text="ПЯТНАШКИ | Мой результат"
+        android:layout_margin="8dp"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
     <LinearLayout
         android:id="@+id/llRoot"
         android:layout_width="match_parent"
@@ -100,21 +108,24 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0"
+        android:gravity="center"
         android:orientation="horizontal" >
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/btPostSelf"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="Button" />
+            android:text="Себе на стену" />
 
         <Button
-            android:id="@+id/btGetScreen"
+            android:id="@+id/btPostFriend"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="Get screen" />
+            android:text="На стену Александру" />
     </LinearLayout>
+
+    
 
 </LinearLayout>

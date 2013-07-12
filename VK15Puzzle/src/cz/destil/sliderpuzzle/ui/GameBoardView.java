@@ -82,6 +82,7 @@ public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 	public Context context;
 	public TileSlicer tileSlicer;
 	Bitmap original;
+	ExtendedApplication extApp;
 	
 	
 	public GameBoardView(Context context, AttributeSet attrSet, String url) {
@@ -445,7 +446,9 @@ public void PutURL(String url, Context context) {
 					motionDescriptor.tile.setXY(motionDescriptor.finalRect.left, motionDescriptor.finalRect.top);
 					if (missionSucceeded()) {	
 						
-						Toast.makeText(context, "SUCCESS", Toast.LENGTH_LONG).show();
+					
+						
+						Toast.makeText(context, "Аватарка собрана!!!", Toast.LENGTH_LONG).show();
 						Bitmap src = original; // the original file yourimage.jpg i added in resources
 					    Bitmap dest = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
 

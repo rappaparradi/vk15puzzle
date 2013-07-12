@@ -1,5 +1,6 @@
 package com.rappasocial.vk15puzzle;
 
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import com.perm.kate.api.Api;
@@ -44,8 +45,7 @@ public class MainActivity extends Activity {
 //	BoxAdapterFriends boxAdapter;
 	EditText messageEditText;
 	ListView lvFriends;
-	Account account = new Account();
-	Api api;
+
 	ExtendedApplication extApp;
 	private GameBoardView gameBoard;
 
@@ -59,23 +59,25 @@ public class MainActivity extends Activity {
 		setupUI();
 
 		// Восстановление сохранённой сессии
-		account.restore(this);
+		extApp.account.restore(this);
 
 		// Если сессия есть создаём API для обращения к серверу
-		if (account.access_token != null) {
-			api = new Api(account.access_token, Constants.API_ID);
+		if (extApp.account.access_token != null) {
+			extApp.api = new Api(extApp.account.access_token, Constants.API_ID);
 
 			showButtons();
 
 			try {
 
-				extApp.arFriends = api.getFriends(account.user_id, null, null,
+				extApp.arFriends = extApp.api.getFriends(extApp.account.user_id, null, null,
 						null, null, null);
 				// Показать сообщение в UI потоке
 //				runOnUiThread(successRunnable);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			
+			
 //			ImageLoader imageLoader = new ImageLoader(MainActivity.this);
 //			imageLoader.DisplayImage(extApp.arFriends.get(0).photo_max_orig,
 //					ivBig);
@@ -165,10 +167,10 @@ public class MainActivity extends Activity {
 		if (requestCode == REQUEST_LOGIN) {
 			if (resultCode == RESULT_OK) {
 				// авторизовались успешно
-				account.access_token = data.getStringExtra("token");
-				account.user_id = data.getLongExtra("user_id", 0);
-				account.save(MainActivity.this);
-				api = new Api(account.access_token, Constants.API_ID);
+				extApp.account.access_token = data.getStringExtra("token");
+				extApp.account.user_id = data.getLongExtra("user_id", 0);
+				extApp.account.save(MainActivity.this);
+				extApp.api = new Api(extApp.account.access_token, Constants.API_ID);
 				showButtons();
 			}
 		}
@@ -181,7 +183,7 @@ public class MainActivity extends Activity {
 			public void run() {
 				try {
 					String text = messageEditText.getText().toString();
-					api.createWallPost(account.user_id, text, null, null,
+					extApp.api.createWallPost(extApp.account.user_id, text, null, null,
 							false, false, false, null, null, null, null);
 					// Показать сообщение в UI потоке
 //					runOnUiThread(successRunnable);
@@ -201,15 +203,15 @@ public class MainActivity extends Activity {
 	};
 
 	private void logOut() {
-		api = null;
-		account.access_token = null;
-		account.user_id = 0;
-		account.save(MainActivity.this);
+		extApp.api = null;
+		extApp.account.access_token = null;
+		extApp.account.user_id = 0;
+		extApp.account.save(MainActivity.this);
 		showButtons();
 	}
 
 	void showButtons() {
-		if (api != null) {
+		if (extApp.api != null) {
 			authorizeButton.setVisibility(View.GONE);
 			logoutButton.setVisibility(View.VISIBLE);
 //			postButton.setVisibility(View.VISIBLE);

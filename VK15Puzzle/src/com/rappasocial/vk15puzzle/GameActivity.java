@@ -3,6 +3,8 @@ package com.rappasocial.vk15puzzle;
 
 import cz.destil.sliderpuzzle.ui.GameBoardView;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Random;
@@ -59,6 +61,7 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 	
 
 	private GameBoardView gameBoard;
+	Collection<Long> uids = new ArrayList<Long>();
 	ExtendedApplication extApp;
 	Thread timerThread;
 	long secondCounter,hourCounter, minuteCounter;
@@ -104,6 +107,8 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 		KolDvizCounter = 0;
 		tvKolDviz.setText(String.valueOf(KolDvizCounter));
 		
+		
+		
 //		AdRequest adRequest = new AdRequest();
 //
 //		// test mode on DEVICE (this example code must be replaced with your
@@ -122,10 +127,31 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 		
 	}
 	
+	private Runnable getFriendNameDat = new Runnable() {
+	    public void run() {
+	        backgroundGetFriendNameDat();
+	    }
+	};
+	// Метод, который выполняет какие-то действия в фоновом режиме.
+	private void backgroundGetFriendNameDat() {
+
+		 uids.clear();
+		 uids.add(extApp.arFriends.get(extApp.frNumber).uid);
+		 try {
+			 extApp.friend_name_dat = extApp.api.getProfiles(uids, null, "first_name", "dat", null, null).get(0).first_name;
+		 } catch (Exception e) {
+				e.printStackTrace();
+			}
+
+	}
+	
 	public void randomizeFriendNum()
 	{
 		Random random = new Random();
 		extApp.frNumber = showRandomInteger(0, extApp.arFriends.size() - 1, random);
+		Thread thread = new Thread(null, getFriendNameDat,
+	            "Background");
+	    thread.start();
 		
 	}
 	
@@ -187,6 +213,7 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 		
 		KolDvizCounter++;
 		tvKolDviz.setText(String.valueOf(KolDvizCounter));
+		extApp.result_moves = KolDvizCounter == 0 ? "0": String.valueOf(KolDvizCounter);
 		
 	}
 
@@ -338,6 +365,27 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 	                            minuteCounter = 0;
 	                        }
 	                    }
+	                    String t_result_time = "";
+	                    String thourCounter = String.valueOf(hourCounter);
+	        	        if(thourCounter.length() == 1)
+	        	        	t_result_time = t_result_time + "0" + thourCounter;
+	        	        else
+	        	        	t_result_time = t_result_time + "" + thourCounter;
+	        	        
+	        	        String tminuteCounter = String.valueOf(minuteCounter);
+	        	        if(tminuteCounter.length() == 1)
+	        	        	t_result_time = t_result_time + ":0" + tminuteCounter;
+	        	        else
+	        	        	t_result_time = t_result_time + ":" + tminuteCounter;
+	        	        
+	        	        String tsecondCounter = String.valueOf(secondCounter);
+	        	        if(tsecondCounter.length() == 1)
+	        	        	t_result_time = t_result_time + ":0" + tsecondCounter;
+	        	        else
+	        	        	t_result_time = t_result_time + ":" + tsecondCounter;
+	                    
+	                    extApp.result_time = String.valueOf(t_result_time);
+	                    
 	                }
 	                try{
 	                    timerThread.sleep(1000);

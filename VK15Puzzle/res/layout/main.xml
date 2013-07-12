@@ -13,18 +13,20 @@
         android:text="Авторизация"
     />
     
-    <Button
-        android:id="@+id/logout"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Выход"
-    />
+   
 
     <Button
         android:id="@+id/btStartGame"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/startgame" />
+    
+     <Button
+        android:id="@+id/logout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Выход"
+    />
 
     <ImageView
         android:id="@+id/ivBig"

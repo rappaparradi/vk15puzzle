@@ -11,8 +11,8 @@
     <string name="sharetext">Пятнашки Вконтакте. (Скачай приложение на Google Play) https://play.google.com/store/apps/details?id=com.rappasocial.vk15puzzle</string>
     <string name="startgame">Играть</string>
     <string name="admob_id">a151d95f331cf34</string>
-    <string name="easy">Легко</string>
-    <string name="medium">Сложно (Доступно в Pro-версии)</string>
-    <string name="hard">Очень сложно (Доступно в Pro-версии)</string>
+    <string name="easy">Легко 3 х 3</string>
+    <string name="medium">Сложно 4 х 4 (Доступно в Pro-версии)</string>
+    <string name="hard">Очень сложно 5 х 5 (Доступно в Pro-версии)</string>
     
 </resources>
