@@ -5,7 +5,7 @@
     <string name="tvKolDvizN">Движений:</string>
     <string name="settings">Настройки</string>
     <string name="rate">Оценить на Google PLay</string>
-    <string name="getpro">Купить платную версию</string>
+    <string name="getpro">Купить PRO-версию</string>
     <string name="share">Поделиться</string>
     <string name="about">О программе</string>
     <string name="sharetext">Пятнашки Вконтакте. (Скачай приложение на Google Play) https://play.google.com/store/apps/details?id=com.rappasocial.vk15puzzle</string>
@@ -14,5 +14,7 @@
     <string name="easy">Легко 3 х 3</string>
     <string name="medium">Сложно 4 х 4 (Доступно в Pro-версии)</string>
     <string name="hard">Очень сложно 5 х 5 (Доступно в Pro-версии)</string>
+    <string name="gplaynotfound">Не найдено приложение Google Play</string>
+    <string name="abouttext">Собирай пятнашки из аватарок своих друзей Вконтакте.</string>
     
 </resources>

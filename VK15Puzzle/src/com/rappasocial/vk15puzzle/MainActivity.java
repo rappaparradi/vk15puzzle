@@ -1,9 +1,24 @@
 package com.rappasocial.vk15puzzle;
 
+import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Random;
+
+import org.holoeverywhere.app.ProgressDialog;
+import org.json.JSONObject;
+
 import com.perm.kate.api.Api;
+import com.perm.kate.api.Photo;
 import com.perm.kate.api.User;
 import com.perm.kate.api.sample.Account;
 import com.perm.kate.api.sample.Constants;
@@ -16,8 +31,13 @@ import cz.destil.sliderpuzzle.ui.GameBoardView;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,15 +87,49 @@ public class MainActivity extends Activity {
 
 			showButtons();
 
-			try {
+			
+			
+//			Thread threadgetFriends = new Thread(null, rgetFriends,
+//		            "getFriends");
+//			threadgetFriends.start();
+//			
+			 AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+	                private ProgressDialog pd;
+	                @Override
+	                protected void onPreExecute() {
+	                         pd = new ProgressDialog(MainActivity.this);
+	                         pd.setTitle("Загрузка списка друзей...");
+	                         pd.setMessage("Пожалуйста, подождите.");
+	                         pd.setCancelable(false);
+	                         pd.setIndeterminate(true);
+	                         pd.show();
+	                }
+	                @Override
+	                protected Void doInBackground(Void... arg0) {
+	                        
+	                	try {
 
-				extApp.arFriends = extApp.api.getFriends(extApp.account.user_id, null, null,
-						null, null, null);
-				// Показать сообщение в UI потоке
-//				runOnUiThread(successRunnable);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+	            			extApp.arFriends = extApp.api.getFriendsvk15m(extApp.account.user_id, null, null,
+	            					null, null, null);
+	            			 
+	         				randomizeFriendNum();
+	         				
+	            			 extApp.original = getBitmapFromURL(extApp.arFriends.get(extApp.frNumber).photo_max_orig);   
+	            			// Показать сообщение в UI потоке
+//	            			runOnUiThread(successRunnable);
+	            		} catch (Exception e) {
+	            			e.printStackTrace();
+	            		}
+	                       
+	                        return null;
+	                 }
+	                 @Override
+	                 protected void onPostExecute(Void result) {
+	                         pd.dismiss();
+	                         
+	                 }
+	        };
+	        task.execute((Void[])null);
 			
 			
 //			ImageLoader imageLoader = new ImageLoader(MainActivity.this);
@@ -104,6 +158,82 @@ public class MainActivity extends Activity {
 //		} catch (Exception e) {
 //			e.printStackTrace();
 //		}
+
+	}
+	
+	public void randomizeFriendNum()
+	{
+		Random random = new Random();
+		extApp.frNumber = showRandomInteger(0, extApp.arFriends.size() - 1,
+				random);
+		while (extApp.arFriends.get(extApp.frNumber).photo_max_orig == null) {
+			
+			extApp.frNumber = showRandomInteger(0, extApp.arFriends.size() - 1,
+					random);
+
+		}
+
+//		Toast.makeText(
+//				this,
+//				extApp.arFriends.get(extApp.frNumber).first_name + " "
+//						+ extApp.arFriends.get(extApp.frNumber).last_name,
+//				Toast.LENGTH_LONG).show();
+		extApp.uids.clear();
+		extApp.uids.add(extApp.arFriends.get(extApp.frNumber).uid);
+		 try {
+			 extApp.friend_name_dat = extApp.api.getProfiles(extApp.uids, null, "first_name", "dat", null, null).get(0).first_name;
+		 } catch (Exception e) {
+				e.printStackTrace();
+			}
+		
+	}
+	
+	
+	
+	public static Bitmap getBitmapFromURL(String src) {
+	    try {
+	        URL url = new URL(src);
+	        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+	        connection.setDoInput(true);
+	        connection.connect();
+	        InputStream input = connection.getInputStream();
+	        Bitmap myBitmap = BitmapFactory.decodeStream(input);
+	        return myBitmap;
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return null;
+	    }
+	}
+	
+	private static int showRandomInteger(int aStart, int aEnd, Random aRandom){
+	    if ( aStart > aEnd ) {
+	      throw new IllegalArgumentException("Start cannot exceed End.");
+	    }
+	    //get the range, casting to long to avoid overflow problems
+	    long range = (long)aEnd - (long)aStart + 1;
+	    // compute a fraction of the range, 0 <= frac < range
+	    long fraction = (long)(range * aRandom.nextDouble());
+	    int randomNumber =  (int)(fraction + aStart);    
+	    return randomNumber;
+	  }
+	
+	private Runnable rgetFriends = new Runnable() {
+	    public void run() {
+	        backgroundgetFriends();
+	    }
+	};
+	// Метод, который выполняет какие-то действия в фоновом режиме.
+	private void backgroundgetFriends() {
+
+		try {
+
+			extApp.arFriends = extApp.api.getFriendsvk15m(extApp.account.user_id, null, null,
+					null, null, null);
+			// Показать сообщение в UI потоке
+//			runOnUiThread(successRunnable);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 

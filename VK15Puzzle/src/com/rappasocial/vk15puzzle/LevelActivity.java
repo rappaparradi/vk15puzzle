@@ -16,7 +16,8 @@ import android.widget.Button;
 
 public class LevelActivity extends Activity implements OnClickListener {
 
-	Button btLevelEasy;
+	Button btLevelEasy, btLevelMedium, btLevelHard;
+	ExtendedApplication extApp;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,11 @@ public class LevelActivity extends Activity implements OnClickListener {
 		setContentView(R.layout.level_activity);
 		btLevelEasy = (Button) findViewById(R.id.btLevelEasy);
 		btLevelEasy.setOnClickListener(this);
+		btLevelMedium = (Button) findViewById(R.id.btLevelMedium);
+		btLevelMedium.setOnClickListener(this);
+		btLevelHard = (Button) findViewById(R.id.btLevelHard);
+		btLevelHard.setOnClickListener(this);
+		extApp = (ExtendedApplication) getApplicationContext();
 
 	}
 
@@ -34,9 +40,27 @@ public class LevelActivity extends Activity implements OnClickListener {
 		switch (v.getId()) {
 
 		case R.id.btLevelEasy:
-			
-			Intent intent = new Intent(this,
-					GameActivity.class);
+
+			extApp.level = 3;
+
+			Intent intent = new Intent(this, GameActivity.class);
+			startActivity(intent);
+
+			break;
+
+		case R.id.btLevelMedium:
+
+			extApp.level = 4;
+
+			intent = new Intent(this, GameActivity.class);
+			startActivity(intent);
+
+			break;
+		case R.id.btLevelHard:
+
+			extApp.level = 5;
+
+			intent = new Intent(this, GameActivity.class);
 			startActivity(intent);
 
 			break;

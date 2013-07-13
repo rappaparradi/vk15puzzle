@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.holoeverywhere.app.ProgressDialog;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +23,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.MotionEvent;
@@ -34,8 +37,6 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.Animato
 import com.actionbarsherlock.internal.nineoldandroids.animation.FloatEvaluator;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.perm.kate.api.sample.ImageLoader;
-
-
 
 import com.rappasocial.vk15puzzle.ExtendedApplication;
 import com.rappasocial.vk15puzzle.GameActivity;
@@ -58,9 +59,9 @@ import cz.destil.sliderpuzzle.util.TileSlicer;
  * 
  */
 @SuppressLint("NewApi")
-public  class GameBoardView extends RelativeLayout implements OnTouchListener {
+public class GameBoardView extends RelativeLayout implements OnTouchListener {
 
-	public static final int GRID_SIZE = 3; // 4x4
+	public int GRID_SIZE; // 4x4
 
 	public enum Direction {
 		X, Y
@@ -69,7 +70,6 @@ public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 	private int tileSize;
 	private ArrayList<TileView> tiles;
 	private ArrayList<TileView> tilesOriginal;
-	
 
 	private TileView emptyTile, movedTile;
 	public boolean boardCreated;
@@ -83,20 +83,23 @@ public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 	public TileSlicer tileSlicer;
 	Bitmap original;
 	ExtendedApplication extApp;
-	
-	
+
 	public GameBoardView(Context context, AttributeSet attrSet, String url) {
 		super(context, attrSet);
 		this.vkphotourl = url;
 		this.context = context;
-	}
-	
-	public GameBoardView(Context context, AttributeSet attrSet) {
-		super(context, attrSet);
+		extApp = (ExtendedApplication) context.getApplicationContext();
+		this.GRID_SIZE = extApp.level;
+
 	}
 
+	 public GameBoardView(Context context, AttributeSet attrSet) {
+	 super(context, attrSet);
+	 }
+
 	@Override
-	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+	protected void onLayout(boolean changed, int left, int top, int right,
+			int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
 		if (!boardCreated) {
 			determineGameboardSizes();
@@ -109,40 +112,39 @@ public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 	 * Detect game board size and tile size based on current screen.
 	 */
 	private void determineGameboardSizes() {
+		extApp = (ExtendedApplication) context.getApplicationContext();
 		int viewWidth = getWidth();
 		int viewHeight = getHeight();
 		// fit in portrait or landscape
 		if (viewWidth > viewHeight) {
-			tileSize = viewHeight / GRID_SIZE;
+			tileSize = viewHeight / extApp.level;
 		} else {
-			tileSize = viewWidth / GRID_SIZE;
+			tileSize = viewWidth / extApp.level;
 		}
-		int gameboardSize = tileSize * GRID_SIZE;
+		int gameboardSize = tileSize * extApp.level;
 		// center gameboard
 		int gameboardTop = viewHeight / 2 - gameboardSize / 2;
 		int gameboardLeft = viewWidth / 2 - gameboardSize / 2;
-		gameboardRect = new RectF(gameboardLeft, gameboardTop, gameboardLeft + gameboardSize, gameboardTop
-				+ gameboardSize);
+		gameboardRect = new RectF(gameboardLeft, gameboardTop, gameboardLeft
+				+ gameboardSize, gameboardTop + gameboardSize);
 	}
 
 	/**
 	 * Fills game board with tiles sliced from the globe image.
 	 */
 	public void fillTiles(String url, Context context) {
-		
-		removeAllViews();
-		// load image to slicer
-		ImageLoader imageLoader = new ImageLoader(context);
-		
-		original = imageLoader.getBitmap(url);
-		ExtendedApplication extApp = (ExtendedApplication) context.getApplicationContext();
-		extApp.scoreImage = original;
-		tileSlicer = new TileSlicer(original, GRID_SIZE, getContext());
-		// order slices
-//		tileOrderOriginal = getTileOrder();
-	    
 
-		
+		removeAllViews();
+		extApp = (ExtendedApplication) context.getApplicationContext();
+		extApp.url = url;
+
+		extApp = (ExtendedApplication) context.getApplicationContext();
+		original = extApp.original;
+		extApp.scoreImage = original;
+		tileSlicer = new TileSlicer(original, extApp.level, getContext());
+		// order slices
+		// tileOrderOriginal = getTileOrder();
+
 		if (tileOrder == null) {
 			tileSlicer.randomizeSlices();
 		} else {
@@ -150,8 +152,8 @@ public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 		}
 		// fill game board with slices
 		tiles = new ArrayList<TileView>();
-		for (int rowI = 0; rowI < GRID_SIZE; rowI++) {
-			for (int colI = 0; colI < GRID_SIZE; colI++) {
+		for (int rowI = 0; rowI < extApp.level; rowI++) {
+			for (int colI = 0; colI < extApp.level; colI++) {
 				TileView tile;
 				if (tileOrder == null) {
 					tile = tileSlicer.getTile();
@@ -166,10 +168,28 @@ public  class GameBoardView extends RelativeLayout implements OnTouchListener {
 				tiles.add(tile);
 			}
 		}
+
+		//
+		// Thread threadrGBViewInit = new Thread(null, rGBViewInit,
+		// "rGBViewInit");
+		// threadrGBViewInit.start();
+		// load image to slicer
+
 	}
-	
-public void PutURL(String url, Context context) {
-		
+
+	private Runnable rGBViewInit = new Runnable() {
+		public void run() {
+			backgroundgetrGBViewInit();
+		}
+	};
+
+	// Метод, который выполняет какие-то действия в фоновом режиме.
+	private void backgroundgetrGBViewInit() {
+
+	}
+
+	public void PutURL(String url, Context context) {
+
 		this.vkphotourl = url;
 		this.context = context;
 	}
@@ -182,7 +202,8 @@ public void PutURL(String url, Context context) {
 	 */
 	private void placeTile(TileView tile) {
 		Rect tileRect = rectForCoordinate(tile.coordinate);
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(tileSize, tileSize);
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+				tileSize, tileSize);
 		params.topMargin = tileRect.top;
 		params.leftMargin = tileRect.left;
 		addView(tile, params);
@@ -217,13 +238,11 @@ public void PutURL(String url, Context context) {
 				// if drag was over 50% or it's click, do the move
 				if (lastDragMovedAtLeastHalfWay() || isClick()) {
 					animateTilesToEmptySpace();
-					
-					Intent intentACTION_MOVE_DONE = new Intent(GameActivity.ACTION_MOVE_DONE); 
+
+					Intent intentACTION_MOVE_DONE = new Intent(
+							GameActivity.ACTION_MOVE_DONE);
 					context.sendBroadcast(intentACTION_MOVE_DONE);
-					
-					
-					
-					
+
 				} else {
 					animateTilesBackToOrigin();
 				}
@@ -234,74 +253,77 @@ public void PutURL(String url, Context context) {
 			return true;
 		}
 	}
-	
-	boolean missionSucceeded(){
-		
+
+	boolean missionSucceeded() {
+
 		boolean q = true;
 		for (int i = 0; i < 8; i++) {
-		
-			if (tileSlicer.sliceOrderOriginal.get(((BitmapDrawable)tiles.get(i).getDrawable()).getBitmap()) != orderNumFromCoordinate(tiles.get(i).coordinate.row, tiles.get(i).coordinate.column))
-			{
-				 q = false;
-				 break;
-				
-			}else {
-				
+
+			if (tileSlicer.sliceOrderOriginal.get(((BitmapDrawable) tiles
+					.get(i).getDrawable()).getBitmap()) != orderNumFromCoordinate(
+					tiles.get(i).coordinate.row, tiles.get(i).coordinate.column)) {
+				q = false;
+				break;
+
+			} else {
+
 				q = q;
-				
+
 			}
-			
+
 		}
-		
+
 		return q;
-		
-	} 
-	
- int orderNumFromCoordinate(int y, int x){
-		
+
+	}
+
+	int orderNumFromCoordinate(int y, int x) {
+
 		if (x == 0 && y == 0) {
-			
+
 			return 0;
-			
-		}else if (x == 0 && y == 1) {
-			
+
+		} else if (x == 0 && y == 1) {
+
 			return 1;
-			
-		}else if (x == 0 && y == 2) {
-			
+
+		} else if (x == 0 && y == 2) {
+
 			return 2;
-			
-		}else if (x == 1 && y == 0) {
-			
+
+		} else if (x == 1 && y == 0) {
+
 			return 3;
-			
-		}else if (x == 1 && y == 1) {
-			
+
+		} else if (x == 1 && y == 1) {
+
 			return 4;
-			
-		}else if (x == 1 && y == 2) {
-			
+
+		} else if (x == 1 && y == 2) {
+
 			return 5;
-			
-		}else if (x == 2 && y == 0) {
-			
+
+		} else if (x == 2 && y == 0) {
+
 			return 6;
-			
-		}else if (x == 2 && y == 1) {
-			
+
+		} else if (x == 2 && y == 1) {
+
 			return 7;
-			
-		} else return 9;
-		
-		
-	} 
+
+		} else
+			return 9;
+
+	}
 
 	/**
 	 * @return Whether last drag moved with the tile more than 50% of its size
 	 */
 	private boolean lastDragMovedAtLeastHalfWay() {
-		if (lastDragPoint != null && currentMotionDescriptors != null && currentMotionDescriptors.size() > 0) {
-			GameTileMotionDescriptor firstMotionDescriptor = currentMotionDescriptors.get(0);
+		if (lastDragPoint != null && currentMotionDescriptors != null
+				&& currentMotionDescriptors.size() > 0) {
+			GameTileMotionDescriptor firstMotionDescriptor = currentMotionDescriptors
+					.get(0);
 			if (firstMotionDescriptor.axialDelta > tileSize / 2) {
 				return true;
 			}
@@ -319,8 +341,11 @@ public void PutURL(String url, Context context) {
 			return true; // no drags
 		}
 		// just small amount of MOVE events counts as click
-		if (currentMotionDescriptors != null && currentMotionDescriptors.size() > 0 && movedTile.numberOfDrags < 10) {
-			GameTileMotionDescriptor firstMotionDescriptor = currentMotionDescriptors.get(0);
+		if (currentMotionDescriptors != null
+				&& currentMotionDescriptors.size() > 0
+				&& movedTile.numberOfDrags < 10) {
+			GameTileMotionDescriptor firstMotionDescriptor = currentMotionDescriptors
+					.get(0);
 			// just very small drag counts as click
 			if (firstMotionDescriptor.axialDelta < tileSize / 20) {
 				return true;
@@ -344,10 +369,11 @@ public void PutURL(String url, Context context) {
 		movedTile.numberOfDrags++;
 		for (GameTileMotionDescriptor descriptor : currentMotionDescriptors) {
 			tile = descriptor.tile;
-			Pair<Float, Float> xy = getXYFromEvent(tile, dxEvent, dyEvent, descriptor.direction);
+			Pair<Float, Float> xy = getXYFromEvent(tile, dxEvent, dyEvent,
+					descriptor.direction);
 			// detect if this move is valid
-			RectF candidateRect = new RectF(xy.first, xy.second, xy.first + tile.getWidth(), xy.second
-					+ tile.getHeight());
+			RectF candidateRect = new RectF(xy.first, xy.second, xy.first
+					+ tile.getWidth(), xy.second + tile.getHeight());
 			ArrayList<TileView> tilesToCheck = null;
 			if (tile.coordinate.row == emptyTile.coordinate.row) {
 				tilesToCheck = allTilesInRow(tile.coordinate.row);
@@ -355,16 +381,20 @@ public void PutURL(String url, Context context) {
 				tilesToCheck = allTilesInColumn(tile.coordinate.column);
 			}
 
-			boolean candidateRectInGameboard = (gameboardRect.contains(candidateRect));
-			boolean collides = collidesWithTitles(candidateRect, tile, tilesToCheck);
+			boolean candidateRectInGameboard = (gameboardRect
+					.contains(candidateRect));
+			boolean collides = collidesWithTitles(candidateRect, tile,
+					tilesToCheck);
 
-			impossibleMove = impossibleMove && (!candidateRectInGameboard || collides);
+			impossibleMove = impossibleMove
+					&& (!candidateRectInGameboard || collides);
 		}
 		if (!impossibleMove) {
 			// perform the move for all moved tiles in the descriptors
 			for (GameTileMotionDescriptor descriptor : currentMotionDescriptors) {
 				tile = descriptor.tile;
-				Pair<Float, Float> xy = getXYFromEvent(tile, dxEvent, dyEvent, descriptor.direction);
+				Pair<Float, Float> xy = getXYFromEvent(tile, dxEvent, dyEvent,
+						descriptor.direction);
 				tile.setXY(xy.first, xy.second);
 			}
 		}
@@ -382,7 +412,8 @@ public void PutURL(String url, Context context) {
 	 *            x or y direction
 	 * @return pair of first x coordinates, second y coordinates
 	 */
-	private Pair<Float, Float> getXYFromEvent(TileView tile, float dxEvent, float dyEvent, Direction direction) {
+	private Pair<Float, Float> getXYFromEvent(TileView tile, float dxEvent,
+			float dyEvent, Direction direction) {
 		float dxTile = 0, dyTile = 0;
 		if (direction == Direction.X) {
 			dxTile = tile.getXPos() + dxEvent;
@@ -404,12 +435,15 @@ public void PutURL(String url, Context context) {
 	 *            list of tiles to check
 	 * @return Whether candidateRect collides with any tilesToCheck
 	 */
-	private boolean collidesWithTitles(RectF candidateRect, TileView tile, ArrayList<TileView> tilesToCheck) {
+	private boolean collidesWithTitles(RectF candidateRect, TileView tile,
+			ArrayList<TileView> tilesToCheck) {
 		RectF otherTileRect;
 		for (TileView otherTile : tilesToCheck) {
 			if (!otherTile.isEmpty() && otherTile != tile) {
-				otherTileRect = new RectF(otherTile.getXPos(), otherTile.getYPos(), otherTile.getXPos()
-						+ otherTile.getWidth(), otherTile.getYPos() + otherTile.getHeight());
+				otherTileRect = new RectF(otherTile.getXPos(),
+						otherTile.getYPos(), otherTile.getXPos()
+								+ otherTile.getWidth(), otherTile.getYPos()
+								+ otherTile.getHeight());
 				if (RectF.intersects(otherTileRect, candidateRect)) {
 					return true;
 				}
@@ -427,8 +461,10 @@ public void PutURL(String url, Context context) {
 		emptyTile.coordinate = movedTile.coordinate;
 		ObjectAnimator animator;
 		for (final GameTileMotionDescriptor motionDescriptor : currentMotionDescriptors) {
-			animator = ObjectAnimator.ofObject(motionDescriptor.tile, motionDescriptor.direction.toString(),
-					new FloatEvaluator(), motionDescriptor.from, motionDescriptor.to);
+			animator = ObjectAnimator.ofObject(motionDescriptor.tile,
+					motionDescriptor.direction.toString(),
+					new FloatEvaluator(), motionDescriptor.from,
+					motionDescriptor.to);
 			animator.setDuration(16);
 			animator.addListener(new AnimatorListener() {
 
@@ -443,42 +479,28 @@ public void PutURL(String url, Context context) {
 
 				public void onAnimationEnd(Animator animation) {
 					motionDescriptor.tile.coordinate = motionDescriptor.finalCoordinate;
-					motionDescriptor.tile.setXY(motionDescriptor.finalRect.left, motionDescriptor.finalRect.top);
-					if (missionSucceeded()) {	
-						
-					
-						
-						Toast.makeText(context, "Аватарка собрана!!!", Toast.LENGTH_LONG).show();
-						Bitmap src = original; // the original file yourimage.jpg i added in resources
-					    Bitmap dest = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
+					motionDescriptor.tile.setXY(
+							motionDescriptor.finalRect.left,
+							motionDescriptor.finalRect.top);
+					if (missionSucceeded()) {
 
-					    String yourText = "My custom Text adding to Image";
+						Toast.makeText(context, "Аватарка собрана!!!",
+								Toast.LENGTH_LONG).show();
+						extApp = (ExtendedApplication) context
+								.getApplicationContext();
+						Bitmap src = extApp.scoreImage; // the original file
+														// yourimage.jpg i added
+														// in resources
+						Bitmap dest = Bitmap.createBitmap(src.getWidth(),
+								src.getHeight(), Bitmap.Config.ARGB_8888);
+						Canvas cs = new Canvas(dest);
+						cs.drawBitmap(src, 0f, 0f, null);
 
-					    Canvas cs = new Canvas(dest);
-					    Paint tPaint = new Paint();
-					    tPaint.setTextSize(35);
-					    tPaint.setColor(Color.BLUE);
-					    tPaint.setStyle(Style.FILL);
-					    cs.drawBitmap(src, 0f, 0f, null);
-					    float height = tPaint.measureText("yY");
-					    float width = tPaint.measureText(yourText);
-					    float x_coord = (src.getWidth() - width)/2;
-					    cs.drawText(yourText, x_coord, height+15f, tPaint); // 15f is to put space between top edge and the text, if you want to change it, you can
-					    ExtendedApplication extApp = (ExtendedApplication) context.getApplicationContext();
-					    extApp.scoreImage = dest;
-					    Intent intent = new Intent(context,
-					    		ScoresDialog.class);
-						
-					    context.startActivity(intent);
-		
-					    try {
-					        dest.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(new File("/sdcard/ImageAfterAddingText.jpg")));
-					        // dest is Bitmap, if you want to preview the final image, you can display it on screen also before saving
-					    } catch (FileNotFoundException e) {
-					        // TODO Auto-generated catch block
-					        e.printStackTrace();
-					    }
-						
+						extApp.scoreImage = dest;
+						Intent intent = new Intent(context, ScoresDialog.class);
+
+						context.startActivity(intent);
+
 					}
 				}
 			});
@@ -494,8 +516,11 @@ public void PutURL(String url, Context context) {
 		ObjectAnimator animator;
 		if (currentMotionDescriptors != null) {
 			for (final GameTileMotionDescriptor motionDescriptor : currentMotionDescriptors) {
-				animator = ObjectAnimator.ofObject(motionDescriptor.tile, motionDescriptor.direction.toString(),
-						new FloatEvaluator(), motionDescriptor.currentPosition(), motionDescriptor.originalPosition());
+				animator = ObjectAnimator.ofObject(motionDescriptor.tile,
+						motionDescriptor.direction.toString(),
+						new FloatEvaluator(),
+						motionDescriptor.currentPosition(),
+						motionDescriptor.originalPosition());
 				animator.setDuration(16);
 				animator.addListener(new AnimatorListener() {
 
@@ -509,7 +534,8 @@ public void PutURL(String url, Context context) {
 					}
 
 					public void onAnimationEnd(Animator animation) {
-						motionDescriptor.tile.setXY(motionDescriptor.originalRect.left,
+						motionDescriptor.tile.setXY(
+								motionDescriptor.originalRect.left,
 								motionDescriptor.originalRect.top);
 					}
 				});
@@ -526,7 +552,8 @@ public void PutURL(String url, Context context) {
 	 *            A tile to be checked
 	 * @return list of tiles between checked tile and empty tile
 	 */
-	private ArrayList<GameTileMotionDescriptor> getTilesBetweenEmptyTileAndTile(TileView tile) {
+	private ArrayList<GameTileMotionDescriptor> getTilesBetweenEmptyTileAndTile(
+			TileView tile) {
 		ArrayList<GameTileMotionDescriptor> descriptors = new ArrayList<GameTileMotionDescriptor>();
 		Coordinate coordinate, finalCoordinate;
 		TileView foundTile;
@@ -537,13 +564,14 @@ public void PutURL(String url, Context context) {
 			// add all tiles left of the tile
 			for (int i = tile.coordinate.column; i > emptyTile.coordinate.column; i--) {
 				coordinate = new Coordinate(tile.coordinate.row, i);
-				foundTile = (tile.coordinate.matches(coordinate)) ? tile : getTileAtCoordinate(coordinate);
+				foundTile = (tile.coordinate.matches(coordinate)) ? tile
+						: getTileAtCoordinate(coordinate);
 				finalCoordinate = new Coordinate(tile.coordinate.row, i - 1);
 				currentRect = rectForCoordinate(foundTile.coordinate);
 				finalRect = rectForCoordinate(finalCoordinate);
 				axialDelta = Math.abs(foundTile.getXPos() - currentRect.left);
-				motionDescriptor = new GameTileMotionDescriptor(foundTile, Direction.X, foundTile.getXPos(),
-						finalRect.left);
+				motionDescriptor = new GameTileMotionDescriptor(foundTile,
+						Direction.X, foundTile.getXPos(), finalRect.left);
 				motionDescriptor.finalCoordinate = finalCoordinate;
 				motionDescriptor.finalRect = finalRect;
 				motionDescriptor.axialDelta = axialDelta;
@@ -553,13 +581,14 @@ public void PutURL(String url, Context context) {
 			// add all tiles right of the tile
 			for (int i = tile.coordinate.column; i < emptyTile.coordinate.column; i++) {
 				coordinate = new Coordinate(tile.coordinate.row, i);
-				foundTile = (tile.coordinate.matches(coordinate)) ? tile : getTileAtCoordinate(coordinate);
+				foundTile = (tile.coordinate.matches(coordinate)) ? tile
+						: getTileAtCoordinate(coordinate);
 				finalCoordinate = new Coordinate(tile.coordinate.row, i + 1);
 				currentRect = rectForCoordinate(foundTile.coordinate);
 				finalRect = rectForCoordinate(finalCoordinate);
 				axialDelta = Math.abs(foundTile.getXPos() - currentRect.left);
-				motionDescriptor = new GameTileMotionDescriptor(foundTile, Direction.X, foundTile.getXPos(),
-						finalRect.left);
+				motionDescriptor = new GameTileMotionDescriptor(foundTile,
+						Direction.X, foundTile.getXPos(), finalRect.left);
 				motionDescriptor.finalCoordinate = finalCoordinate;
 				motionDescriptor.finalRect = finalRect;
 				motionDescriptor.axialDelta = axialDelta;
@@ -569,13 +598,14 @@ public void PutURL(String url, Context context) {
 			// add all tiles bellow the tile
 			for (int i = tile.coordinate.row; i < emptyTile.coordinate.row; i++) {
 				coordinate = new Coordinate(i, tile.coordinate.column);
-				foundTile = (tile.coordinate.matches(coordinate)) ? tile : getTileAtCoordinate(coordinate);
+				foundTile = (tile.coordinate.matches(coordinate)) ? tile
+						: getTileAtCoordinate(coordinate);
 				finalCoordinate = new Coordinate(i + 1, tile.coordinate.column);
 				currentRect = rectForCoordinate(foundTile.coordinate);
 				finalRect = rectForCoordinate(finalCoordinate);
 				axialDelta = Math.abs(foundTile.getYPos() - currentRect.top);
-				motionDescriptor = new GameTileMotionDescriptor(foundTile, Direction.Y, foundTile.getYPos(),
-						finalRect.top);
+				motionDescriptor = new GameTileMotionDescriptor(foundTile,
+						Direction.Y, foundTile.getYPos(), finalRect.top);
 				motionDescriptor.finalCoordinate = finalCoordinate;
 				motionDescriptor.finalRect = finalRect;
 				motionDescriptor.axialDelta = axialDelta;
@@ -585,13 +615,14 @@ public void PutURL(String url, Context context) {
 			// add all tiles above the tile
 			for (int i = tile.coordinate.row; i > emptyTile.coordinate.row; i--) {
 				coordinate = new Coordinate(i, tile.coordinate.column);
-				foundTile = (tile.coordinate.matches(coordinate)) ? tile : getTileAtCoordinate(coordinate);
+				foundTile = (tile.coordinate.matches(coordinate)) ? tile
+						: getTileAtCoordinate(coordinate);
 				finalCoordinate = new Coordinate(i - 1, tile.coordinate.column);
 				currentRect = rectForCoordinate(foundTile.coordinate);
 				finalRect = rectForCoordinate(finalCoordinate);
 				axialDelta = Math.abs(foundTile.getYPos() - currentRect.top);
-				motionDescriptor = new GameTileMotionDescriptor(foundTile, Direction.Y, foundTile.getYPos(),
-						finalRect.top);
+				motionDescriptor = new GameTileMotionDescriptor(foundTile,
+						Direction.Y, foundTile.getYPos(), finalRect.top);
 				motionDescriptor.finalCoordinate = finalCoordinate;
 				motionDescriptor.finalRect = finalRect;
 				motionDescriptor.axialDelta = axialDelta;
@@ -664,9 +695,10 @@ public void PutURL(String url, Context context) {
 	 * @return current tile locations
 	 */
 	public LinkedList<Integer> getTileOrder() {
+		extApp = (ExtendedApplication) context.getApplicationContext();
 		LinkedList<Integer> tileLocations = new LinkedList<Integer>();
-		for (int rowI = 0; rowI < GRID_SIZE; rowI++) {
-			for (int colI = 0; colI < GRID_SIZE; colI++) {
+		for (int rowI = 0; rowI < extApp.level; rowI++) {
+			for (int colI = 0; colI < extApp.level; colI++) {
 				TileView tile = getTileAtCoordinate(new Coordinate(rowI, colI));
 				tileLocations.add(tile.originalIndex);
 			}
@@ -695,7 +727,8 @@ public void PutURL(String url, Context context) {
 		public float from, to, axialDelta;
 		public Coordinate finalCoordinate;
 
-		public GameTileMotionDescriptor(TileView tile, Direction direction, float from, float to) {
+		public GameTileMotionDescriptor(TileView tile, Direction direction,
+				float from, float to) {
 			super();
 			this.tile = tile;
 			this.from = from;

@@ -91,6 +91,9 @@ public class ScoresDialog extends Activity implements OnClickListener {
 		            "postToWallSelf");
 			threadPostSelf.start();
 			
+			Toast.makeText(this, "Результат публикуется...", Toast.LENGTH_LONG).show();
+			
+			this.finish();
 
 			break;
 
@@ -99,6 +102,10 @@ public class ScoresDialog extends Activity implements OnClickListener {
 			Thread threadPostFriend = new Thread(null, postToWallFriend,
 		            "postToWallFriend");
 			threadPostFriend.start();
+			
+			Toast.makeText(this, "Результат публикуется...", Toast.LENGTH_LONG).show();
+			
+			this.finish();
 
 			break;
 
@@ -182,9 +189,9 @@ public class ScoresDialog extends Activity implements OnClickListener {
 			 Collection<String> photosColl = new ArrayList<String>();
 			 photosColl.add("photo" + String.valueOf(extApp.account.user_id) + "_" + String.valueOf(res_saveWallPhoto.get(0).pid));
 			 
-		 res_createWallPost = extApp.api.createWallPost(extApp.account.user_id, "Мой результат:", photosColl, null,
+		 res_createWallPost = extApp.api.createWallPost(extApp.account.user_id, "", photosColl, null,
 					false, false, false, null, null, null, null);
-		 Toast.makeText(this, String.valueOf(res_createWallPost), Toast.LENGTH_SHORT).show();
+		 myPath.delete();
 		 } catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -269,7 +276,7 @@ public class ScoresDialog extends Activity implements OnClickListener {
 			 
 		 res_createWallPost = extApp.api.createWallPost(extApp.arFriends.get(extApp.frNumber).uid, "", photosColl, null,
 					false, false, false, null, null, null, null);
-		 Toast.makeText(this, String.valueOf(res_createWallPost), Toast.LENGTH_SHORT).show();
+		 myPath.delete();
 		 } catch (Exception e) {
 				e.printStackTrace();
 			}

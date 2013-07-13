@@ -3,6 +3,11 @@ package com.rappasocial.vk15puzzle;
 
 import cz.destil.sliderpuzzle.ui.GameBoardView;
 
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -10,6 +15,7 @@ import java.util.LinkedList;
 import java.util.Random;
 
 import org.holoeverywhere.app.AlertDialog;
+import org.holoeverywhere.app.ProgressDialog;
 
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -18,11 +24,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings.Secure;
@@ -44,6 +52,7 @@ import com.google.ads.AdView;
 
 
 
+import com.perm.kate.api.sample.ImageLoader;
 import com.rappasocial.vk15puzzle.R;
 
 /**
@@ -61,7 +70,7 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 	
 
 	private GameBoardView gameBoard;
-	Collection<Long> uids = new ArrayList<Long>();
+	
 	ExtendedApplication extApp;
 	Thread timerThread;
 	long secondCounter,hourCounter, minuteCounter;
@@ -86,11 +95,15 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game_activity);
 		extApp = (ExtendedApplication) getApplicationContext();
-		randomizeFriendNum();
+//		randomizeFriendNum();
 		
-		initgameBoard();
+		initgameBoard(true);
 		
-		
+		Toast.makeText(
+				this,
+				extApp.arFriends.get(extApp.frNumber).first_name + " "
+						+ extApp.arFriends.get(extApp.frNumber).last_name,
+				Toast.LENGTH_LONG).show();
 		
 		secTextView = (TextView) findViewById(R.id.secTextView);
 		minTextView = (TextView) findViewById(R.id.minTextView);
@@ -98,8 +111,8 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 		tvKolDviz = (TextView) findViewById(R.id.tvKolDviz);
 		btRefreshGame = (Button) findViewById(R.id.btRefreshGame);
 		btRefreshGame.setOnClickListener(this);
-		btShowSuccess = (Button) findViewById(R.id.btShowSuccess);
-		btShowSuccess.setOnClickListener(this);
+//		btShowSuccess = (Button) findViewById(R.id.btShowSuccess);
+//		btShowSuccess.setOnClickListener(this);
 		
 		dateStart = new Date(System.currentTimeMillis());
 		continueThread = true;
@@ -109,21 +122,21 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 		
 		
 		
-//		AdRequest adRequest = new AdRequest();
-//
-//		// test mode on DEVICE (this example code must be replaced with your
-//		// device uniquq ID)
-//		adRequest.addTestDevice(Secure.getString(this.getContentResolver(),
-//				Secure.ANDROID_ID));
-//
-//		AdView adView = (AdView) findViewById(R.id.ad);
-//
-//		// Initiate a request to load an ad in test mode.
-//		// You can keep this even when you release your app on the market,
-//		// because
-//		// only emulators and your test device will get test ads. The user will
-//		// receive real ads.
-//		adView.loadAd(adRequest);
+		AdRequest adRequest = new AdRequest();
+
+		// test mode on DEVICE (this example code must be replaced with your
+		// device uniquq ID)
+		adRequest.addTestDevice(Secure.getString(this.getContentResolver(),
+				Secure.ANDROID_ID));
+
+		AdView adView = (AdView) findViewById(R.id.ad);
+
+		// Initiate a request to load an ad in test mode.
+		// You can keep this even when you release your app on the market,
+		// because
+		// only emulators and your test device will get test ads. The user will
+		// receive real ads.
+		adView.loadAd(adRequest);
 		
 	}
 	
@@ -135,33 +148,51 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 	// Метод, который выполняет какие-то действия в фоновом режиме.
 	private void backgroundGetFriendNameDat() {
 
-		 uids.clear();
-		 uids.add(extApp.arFriends.get(extApp.frNumber).uid);
+		 extApp.uids.clear();
+		 extApp.uids.add(extApp.arFriends.get(extApp.frNumber).uid);
 		 try {
-			 extApp.friend_name_dat = extApp.api.getProfiles(uids, null, "first_name", "dat", null, null).get(0).first_name;
+			 extApp.friend_name_dat = extApp.api.getProfiles(extApp.uids, null, "first_name", "dat", null, null).get(0).first_name;
 		 } catch (Exception e) {
 				e.printStackTrace();
 			}
 
 	}
 	
-	public void randomizeFriendNum()
-	{
-		Random random = new Random();
-		extApp.frNumber = showRandomInteger(0, extApp.arFriends.size() - 1, random);
-		Thread thread = new Thread(null, getFriendNameDat,
-	            "Background");
-	    thread.start();
+	public void randomizeFriendNum() {
 		
+		Random random = new Random();
+		extApp.frNumber = showRandomInteger(0, extApp.arFriends.size() - 1,
+				random);
+		while (extApp.arFriends.get(extApp.frNumber).photo_max_orig == null) {
+			
+			extApp.frNumber = showRandomInteger(0, extApp.arFriends.size() - 1,
+					random);
+
+		}
+
+		Toast.makeText(
+				this,
+				extApp.arFriends.get(extApp.frNumber).first_name + " "
+						+ extApp.arFriends.get(extApp.frNumber).last_name,
+				Toast.LENGTH_LONG).show();
+		Thread thread = new Thread(null, getFriendNameDat, "Background");
+		thread.start();
+
 	}
-	
-	public void initgameBoard()
+
+	public void initgameBoard(boolean fromOnCreate)
 	{
-		try {
+		 
+//		 initializeDialog();
+		 if (!fromOnCreate){
+		  randomizeFriendNum();	
+		  initializeDialog();
+		 AsyncTask<Void, Void, Void> task = new LoadImgTask(this);
+     task.execute((Void[])null);}
+     while (extApp.original == null){}
+     try {
 			gameBoard = (GameBoardView) findViewById(R.id.gameboard);
-			while (extApp.arFriends.get(extApp.frNumber).photo_max_orig == null){
-				randomizeFriendNum();
-			}
+			
 			gameBoard.PutURL(extApp.arFriends.get(extApp.frNumber).photo_max_orig,
 					GameActivity.this);
 			gameBoard.setTileOrder(null);
@@ -175,7 +206,51 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 			e.printStackTrace();
 		}
 		
+		
 	}
+    
+	public ProgressDialog pd;
+	public void initializeDialog() {
+                  pd = ProgressDialog.show(GameActivity.this, "", "Загрузка...");
+
+         }
+	
+	public void dismissDialog() {
+		pd.dismiss();
+}
+	 public class LoadImgTask extends AsyncTask<Void, Void, Void> {
+         private ProgressDialog pd;
+         private Context context;
+         
+         public  LoadImgTask(Context ctx){
+        	 
+        	 this.context = ctx;
+        	 
+         }
+//         
+//         @Override
+//         protected void onPreExecute() {
+//        	 ((GameActivity)this.context).initializeDialog();
+//
+//         }
+         @Override
+         protected Void doInBackground(Void... arg0) {
+        	 
+        	
+        	 
+//        	 ImageLoader imageLoader = new ImageLoader(this.context);
+//        	 extApp.original = imageLoader.getBitmap(extApp.arFriends.get(extApp.frNumber).photo_max_orig);
+        	 extApp.original = getBitmapFromURL(extApp.arFriends.get(extApp.frNumber).photo_max_orig);   
+        	
+                
+                 return null;
+          }
+          @Override
+          protected void onPostExecute(Void result) {
+        	  ((GameActivity)this.context).dismissDialog();
+                  
+          }
+ };
 	
 	private static int showRandomInteger(int aStart, int aEnd, Random aRandom){
 	    if ( aStart > aEnd ) {
@@ -215,6 +290,21 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 		tvKolDviz.setText(String.valueOf(KolDvizCounter));
 		extApp.result_moves = KolDvizCounter == 0 ? "0": String.valueOf(KolDvizCounter);
 		
+	}
+	
+	public static Bitmap getBitmapFromURL(String src) {
+	    try {
+	        URL url = new URL(src);
+	        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+	        connection.setDoInput(true);
+	        connection.connect();
+	        InputStream input = connection.getInputStream();
+	        Bitmap myBitmap = BitmapFactory.decodeStream(input);
+	        return myBitmap;
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return null;
+	    }
 	}
 
 
@@ -276,40 +366,40 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 			
 		case R.id.menu_item_rate:
 
-//			intent = new Intent(Intent.ACTION_VIEW);
-//		    //Try Google play
-//		    intent.setData(Uri.parse("market://details?id=com.rappasocial.eyesbreak"));
-//		    if (MyStartActivity(intent) == false) {
-//		        //Market (Google play) app seems not installed, let's try to open a webbrowser
-//		        intent.setData(Uri.parse("https://play.google.com/store/apps/details?com.rappasocial.eyesbreak"));
-//		        if (MyStartActivity(intent) == false) {
-//		            //Well if this also fails, we have run out of options, inform the user.
-//		            Toast.makeText(this, getString(R.string.gplaynotfound), Toast.LENGTH_SHORT).show();
-//		        }
-//		    }
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+		    //Try Google play
+		    intent.setData(Uri.parse("market://details?id=com.rappasocial.vk15puzzle"));
+		    if (MyStartActivity(intent) == false) {
+		        //Market (Google play) app seems not installed, let's try to open a webbrowser
+		        intent.setData(Uri.parse("https://play.google.com/store/apps/details?com.rappasocial.vk15puzzle"));
+		        if (MyStartActivity(intent) == false) {
+		            //Well if this also fails, we have run out of options, inform the user.
+		            Toast.makeText(this, getString(R.string.gplaynotfound), Toast.LENGTH_SHORT).show();
+		        }
+		    }
 			return true;
 		
 		case R.id.menu_item_getpro:
 
-//			intent = new Intent(Intent.ACTION_VIEW);
-//		    //Try Google play
-//		    intent.setData(Uri.parse("market://details?id=com.rappasocial.eyesbreakpro"));
-//		    if (MyStartActivity(intent) == false) {
-//		        //Market (Google play) app seems not installed, let's try to open a webbrowser
-//		        intent.setData(Uri.parse("https://play.google.com/store/apps/details?com.rappasocial.eyesbreakpro"));
-//		        if (MyStartActivity(intent) == false) {
-//		            //Well if this also fails, we have run out of options, inform the user.
-//		            Toast.makeText(this, getString(R.string.gplaynotfound), Toast.LENGTH_SHORT).show();
-//		        }
-//		    }
+			intent = new Intent(Intent.ACTION_VIEW);
+		    //Try Google play
+		    intent.setData(Uri.parse("market://details?id=com.rappasocial.vk15puzzlepro"));
+		    if (MyStartActivity(intent) == false) {
+		        //Market (Google play) app seems not installed, let's try to open a webbrowser
+		        intent.setData(Uri.parse("https://play.google.com/store/apps/details?com.rappasocial.vk15puzzlepro"));
+		        if (MyStartActivity(intent) == false) {
+		            //Well if this also fails, we have run out of options, inform the user.
+		            Toast.makeText(this, getString(R.string.gplaynotfound), Toast.LENGTH_SHORT).show();
+		        }
+		    }
 			return true;
 			
 		case R.id.menu_item_about:
 
-//			AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-//			alertDialog.setTitle(getString(R.string.about));
-//			alertDialog.setMessage(getString(R.string.abouttext));
-//			alertDialog.show();
+			AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+			alertDialog.setTitle(getString(R.string.about));
+			alertDialog.setMessage(getString(R.string.abouttext));
+			alertDialog.show();
 			return true;
 			
 			
@@ -357,14 +447,17 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 	                    System.out.println("Inside the Theread ..."+secondCounter);
 	                    if(secondCounter > 59){
 	                        minuteCounter = minuteCounter + 1;
-	                        mHandlerUpdateMinute.post(mUpdateMinute);
+	                        
 	                        secondCounter = 0;
 	                        if(minuteCounter > 59){
 	                            hourCounter = hourCounter + 1;
-	                            mHandlerUpdateHour.post(mUpdateHour);
+	                            
 	                            minuteCounter = 0;
 	                        }
 	                    }
+	                    
+	                    mHandlerUpdateMinute.post(mUpdateMinute);
+	                    mHandlerUpdateHour.post(mUpdateHour);
 	                    String t_result_time = "";
 	                    String thourCounter = String.valueOf(hourCounter);
 	        	        if(thourCounter.length() == 1)
@@ -437,32 +530,21 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 		// TODO Auto-generated method stub
 		switch (v.getId()) {
 		
-		case R.id.btShowSuccess:
-
-			Bitmap src = extApp.scoreImage; // the original file yourimage.jpg i added in resources
-		    Bitmap dest = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
-
-		    String yourText = "My custom Text adding to Image";
-
-		    Canvas cs = new Canvas(dest);
-		    Paint tPaint = new Paint();
-//		    tPaint.setTextSize(35);
-//		    tPaint.setColor(Color.BLUE);
-//		    tPaint.setStyle(Style.FILL);
-		    cs.drawBitmap(src, 0f, 0f, null);
-//		    float height = tPaint.measureText("yY");
-//		    float width = tPaint.measureText(yourText);
-//		    float x_coord = (src.getWidth() - width)/2;
-//		    cs.drawText(yourText, x_coord, height+15f, tPaint); // 15f is to put space between top edge and the text, if you want to change it, you can
-		   
-		    extApp.scoreImage = dest;
-		    Intent intent = new Intent(this,
-		    		ScoresDialog.class);
-			
-		    startActivity(intent);
-			
-			
-			break;
+//		case R.id.btShowSuccess:
+//
+//			Bitmap src = extApp.scoreImage; // the original file yourimage.jpg i added in resources
+//		    Bitmap dest = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
+//		    Canvas cs = new Canvas(dest);
+//		    cs.drawBitmap(src, 0f, 0f, null);
+//
+//		    extApp.scoreImage = dest;
+//		    Intent intent = new Intent(this,
+//		    		ScoresDialog.class);
+//			
+//		    startActivity(intent);
+//			
+//			
+//			break;
 		
 		case R.id.btRefreshGame:
 
@@ -471,10 +553,11 @@ public class GameActivity extends SherlockActivity implements OnClickListener {
 			v.startAnimation(animRotate);
 			
 			
-			    	  randomizeFriendNum();
+//			    	  randomizeFriendNum();
 						
 						gameBoard.boardCreated = false;
-						initgameBoard();
+						extApp.original = null;
+						initgameBoard(false);
 						
 						dateStart = new Date(System.currentTimeMillis());
 						secondCounter = 0; 
